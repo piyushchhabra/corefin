@@ -1,7 +1,6 @@
-package com.corefin.server;
+package com.corefin.server.v1;
 
 import com.corefin.server.v1.response.GetLoanResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service

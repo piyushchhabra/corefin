@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.3'
-    id 'io.spring.dependency-management' version '1.1.4'
+//    id 'org.springframework.boot' version '2.6.4'
+//    id 'io.spring.dependency-management' version '2.6.4'
 }
 
 group = 'com.corefin'
@@ -18,16 +18,18 @@ repositories {
 }
 
 task wrapper(type: Wrapper){
-    gradleVersion = '7.2'
+    gradleVersion = '7.4'
 }
 task prepareKotlinBuildScriptModel {
 
 }
 
 dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-jersey:3.2.1')
-    implementation('org.springframework.boot:spring-boot-starter-test:3.2.1')
-    implementation('org.springframework.boot:spring-boot-starter-actuator:3.2.1')
+    implementation('org.springframework.boot:spring-boot-starter-jersey:2.6.4')
+    implementation('org.springframework.boot:spring-boot-starter-web:2.6.4')
+    implementation('org.springframework.boot:spring-boot-dependencies:2.6.4')
+//    implementation('org.springframework.boot:spring-boot-starter-test:3.2.1')
+//    implementation('org.springframework.boot:spring-boot-starter-actuator:3.2.1')
     implementation('javax.ws.rs:javax.ws.rs-api:2.1.1')
     implementation('javax.inject:javax.inject:1')
 }

@@ -1,10 +1,10 @@
 package com.corefin.server.configuration;
 
-import com.corefin.server.LoanResource;
+import com.corefin.server.v1.LoanResource;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+@Configuration
 public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
