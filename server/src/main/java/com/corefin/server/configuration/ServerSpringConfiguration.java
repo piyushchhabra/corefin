@@ -1,12 +1,15 @@
 package com.corefin.server.configuration;
 
+import org.corefin.configuration.JdbiConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 @Component
 @Configuration
+@Import(JdbiConfiguration.class)
 public class ServerSpringConfiguration {
     @Configuration
     public class RequestLoggingFilterConfig {

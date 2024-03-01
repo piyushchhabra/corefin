@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -16,6 +17,7 @@ import java.util.logging.Logger;
 
 @Component
 @Path("/loans")
+@Consumes(MediaType.APPLICATION_JSON)
 public class LoanResource {
 
     private static final Logger LOGGER = Logger.getLogger(LoanResource.class.getName());
@@ -28,6 +30,11 @@ public class LoanResource {
     @Path("/{loanId}")
     @Produces(MediaType.APPLICATION_JSON)
     public GetLoanResponse getLoan(@PathParam("loanId") String loanId) {
+        LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
+        return new GetLoanResponse(loanId);
+    }
+
+    public <> createLoan(CreateLoanRequest createLoanRequest) {
         LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
         return new GetLoanResponse(loanId);
     }
