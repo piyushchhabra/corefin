@@ -5,9 +5,13 @@ buildscript {
     }
 }
 
+
 plugins {
     id 'org.flywaydb.flyway' version "10.8.1" // Use the latest version
     id 'java'
+}
+java {
+    sourceCompatibility = '17'
 }
 
 flyway {
