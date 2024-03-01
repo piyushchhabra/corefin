@@ -3,5 +3,10 @@
  */
 package com.corefin.server;
 
+import org.junit.jupiter.api.Test;
+
 class ServerApplicationTest {
+    @Test
+    public void test() {
+    }
 }

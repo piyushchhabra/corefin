@@ -28,7 +28,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-jersey:2.6.4')
     implementation('org.springframework.boot:spring-boot-starter-web:2.6.4')
     implementation('org.springframework.boot:spring-boot-dependencies:2.6.4')
-//    implementation('org.springframework.boot:spring-boot-starter-test:3.2.1')
+    implementation('org.springframework.boot:spring-boot-starter-test:2.6.4')
 //    implementation('org.springframework.boot:spring-boot-starter-actuator:3.2.1')
     implementation('javax.ws.rs:javax.ws.rs-api:2.1.1')
     implementation('javax.inject:javax.inject:1')
