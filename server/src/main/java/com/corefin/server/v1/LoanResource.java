@@ -33,9 +33,4 @@ public class LoanResource {
         LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
         return new GetLoanResponse(loanId);
     }
-
-    public <> createLoan(CreateLoanRequest createLoanRequest) {
-        LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
-        return new GetLoanResponse(loanId);
-    }
 }
