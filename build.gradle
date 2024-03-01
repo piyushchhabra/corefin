@@ -1,0 +1,29 @@
+buildscript {
+    dependencies {
+        // need this on the classpath for flyway to work
+        classpath("org.flywaydb:flyway-mysql:10.8.1")
+    }
+}
+
+plugins {
+    id 'org.flywaydb.flyway' version "10.8.1" // Use the latest version
+    id 'java'
+}
+
+flyway {
+    url = 'jdbc:mysql://localhost:3306'
+    schemas = ['corefin_db']
+    user = 'root'
+    password = 'password'
+    locations = ['filesystem:migrations']
+    cleanDisabled = false
+}
+repositories {
+    mavenCentral()
+}
+dependencies {
+    // also, need these packages for flyway migrate
+    runtimeOnly 'mysql:mysql-connector-java:8.0.23' // Use the latest version
+    implementation('org.flywaydb:flyway-gradle-plugin:3.1')
+    implementation('org.flywaydb:flyway-core:8.4.4')
+}
