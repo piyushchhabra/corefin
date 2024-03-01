@@ -1,0 +1,8 @@
+database:
+  username: ${DB_USERNAME:admin}
+  password: ${DB_PASSWORD:password}
+  url: ${DB_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}
+  timezone: ${DB_TIMEZONE:UTC}
+  maxPooledConnections: ${DB_MAX_POOLED_CONNECTIONS:-1}
+  minIdleConnections: ${DB_MIN_IDLE_CONNECTIONS:5}
+  initialPooledConnections: ${DB_INITIAL_POOLED_CONNECTIONS:5}
