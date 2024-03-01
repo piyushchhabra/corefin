@@ -1,5 +1,5 @@
 run-server:
-	./gradlew server:bootRun
+	./gradlew :server:run
 
 db-shell:
 	mysql -u root -ppassword -h 127.0.0.1 -P 3306 -D corefin_db --protocol=tcp
