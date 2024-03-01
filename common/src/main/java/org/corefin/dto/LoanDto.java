@@ -1,4 +1,20 @@
 package org.corefin.dto;
 
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+
 // TODO: Fill this in
-public record LoanDto(String id) {}
+public record LoanDto(String id,
+                      int term,
+                      BigDecimal originatedAmount,
+                      String currency,
+                      BigDecimal targetInterestRate,
+                      BigDecimal effectiveInterestRate,
+                      String externalReference,
+                      ZonedDateTime startDate,
+                      ZonedDateTime endDate,
+                      String status,
+                      String timezone,
+                      String region,
+                      String state
+                      ) {}
