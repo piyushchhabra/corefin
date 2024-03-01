@@ -7,7 +7,6 @@ CREATE TABLE loan (
   target_interest_rate DECIMAL(13, 10) NOT NULL,
   effective_interest_rate DECIMAL(13, 10) NOT NULL,
   external_reference VARCHAR(36),
-  compounding VARCHAR(36) NOT NULL,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   status VARCHAR(12) NOT NULL,
