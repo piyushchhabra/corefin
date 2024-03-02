@@ -19,7 +19,7 @@ public class LoanDao implements BaseDao<LoanDto> {
                 """;
         jdbi.withHandle(
             handle -> {
-                handle.createUpdate(insertQuery)
+                String loanId = handle.createUpdate(insertQuery)
                         .bind("term", dto.term())
                         .bind("originated_amount", dto.originatedAmount())
                         .bind("currency", dto.currency())
@@ -31,7 +31,11 @@ public class LoanDao implements BaseDao<LoanDto> {
                         .bind("status", dto.status())
                         .bind("timezone", dto.timezone())
                         .bind("region", dto.region())
-                        .bind("state", dto.state());
+                        .bind("state", dto.state())
+                        .executeAndReturnGeneratedKeys("loan_id")
+                        .mapTo(String.class)
+                        .one();
+                System.out.println(loanId);
                 return 0;
             }
         );

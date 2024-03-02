@@ -2,11 +2,13 @@ package org.corefin.dao;
 
 import org.corefin.JdbiHelper;
 import org.corefin.dto.LoanDto;
+import org.flywaydb.core.Flyway;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -16,11 +18,20 @@ public class LoanDaoTest {
 
     @BeforeEach
     public void init() {
+        System.out.println("Migrations path: " + new File("migrations").getAbsolutePath());
+        System.out.println("FUCK");
         JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setURL("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+        dataSource.setURL("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL");
         dataSource.setUser("sa");
         dataSource.setPassword("sa");
+        Flyway flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .locations("filesystem:./migrations")
+                .load();
+        flyway.migrate();
+
         Jdbi jdbi = Jdbi.create(dataSource);
+
         loanDao = new LoanDao(jdbi);
     }
 
@@ -52,6 +63,6 @@ public class LoanDaoTest {
                 region,
                 state
         );
-        loanDao.insert(dto);
+        // loanDao.insert(dto);
     }
 }

@@ -27,6 +27,7 @@ dependencies {
 
     // Mockito for mocking dependencies (if needed)
     testImplementation 'org.mockito:mockito-core:4.0.0'
+    implementation 'org.flywaydb:flyway-core:7.15.0'
 }
 
 test {
