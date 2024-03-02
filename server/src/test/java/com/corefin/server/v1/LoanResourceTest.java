@@ -1,8 +1,9 @@
 package com.corefin.server.v1;
 
-import com.corefin.server.utils.JdbiHelper;
 import com.corefin.server.v1.request.CreateLoanRequest;
+import org.corefin.JdbiHelper;
 import org.corefin.dao.LoanDao;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,9 @@ public class LoanResourceTest {
 
     @BeforeEach
     public void init() {
-        loanResourceManager = JdbiHelper.loanResourceManager();
+        Jdbi jdbi = JdbiHelper.jdbi();
+        LoanDao loanDao = new LoanDao(jdbi);
+        loanResourceManager = new LoanResourceManager(loanDao);
         loanResource = new LoanResource(loanResourceManager);
     }
 
