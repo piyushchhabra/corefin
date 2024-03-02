@@ -23,7 +23,7 @@ public class LoanResourceManager {
         return new GetLoanResponse(loanId);
     }
 
-    public void createLoan(CreateLoanRequest createLoanRequest) {
+    public String createLoan(CreateLoanRequest createLoanRequest) {
         LoanDto loanDto = new LoanDto(
                 null,
                 createLoanRequest.term(),
@@ -39,6 +39,6 @@ public class LoanResourceManager {
                 createLoanRequest.region(),
                 createLoanRequest.state()
         );
-        loanDao.insert(loanDto);
+        return loanDao.insert(loanDto).id();
     }
 }

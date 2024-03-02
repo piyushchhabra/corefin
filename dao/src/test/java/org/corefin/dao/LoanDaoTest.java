@@ -18,8 +18,6 @@ public class LoanDaoTest {
 
     @BeforeEach
     public void init() {
-        System.out.println("Migrations path: " + new File("migrations").getAbsolutePath());
-        System.out.println("FUCK");
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL");
         dataSource.setUser("sa");

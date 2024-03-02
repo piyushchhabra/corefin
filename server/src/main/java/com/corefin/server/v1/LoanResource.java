@@ -32,7 +32,7 @@ public class LoanResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public GetLoanResponse createLoan(CreateLoanRequest createLoanRequest) {
-        String loanId = "1";
+        String loanId = loanResourceManager.createLoan(createLoanRequest);
         LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
         return new GetLoanResponse(loanId);
     }

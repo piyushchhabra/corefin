@@ -17,9 +17,9 @@ public class LoanDao implements BaseDao<LoanDto> {
                 INSERT INTO "loan" (term, originated_amount, currency, target_interest_rate, effective_interest_rate, external_reference, start_date, end_date, status, timezone, region, state)
                 VALUES (:term, :originated_amount, :currency, :target_interest_rate, :effective_interest_rate, :external_reference, :start_date, :end_date, :status, :timezone, :region, :state)
                 """;
-        jdbi.withHandle(
+        String loanId = jdbi.withHandle(
             handle -> {
-                String loanId = handle.createUpdate(insertQuery)
+                return handle.createUpdate(insertQuery)
                         .bind("term", dto.term())
                         .bind("originated_amount", dto.originatedAmount())
                         .bind("currency", dto.currency())
@@ -35,16 +35,23 @@ public class LoanDao implements BaseDao<LoanDto> {
                         .executeAndReturnGeneratedKeys("loan_id")
                         .mapTo(String.class)
                         .one();
-                System.out.println(loanId);
-                return 0;
             }
         );
-        return null;
+
+        return findById(loanId);
     }
 
     @Override
     public LoanDto findById(String id) {
-        return null;
+        return jdbi.withHandle(
+                handle -> {
+                    return handle.createQuery("SELECT * FROM loan WHERE loan_id = :loan_id")
+                            .bind("loan_id", id)
+                            .mapToBean(LoanDto.class)
+                            .findOne()
+                            .orElse(null);
+                }
+        );
     }
     @Override
     public void registerRowMapper() {
