@@ -29,10 +29,10 @@ public class LoanResource {
         this.loanResourceManager = loanResourceManager;
     }
 
-
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public GetLoanResponse createLoan(CreateLoanRequest createLoanRequest) {
+        String loanId = "1";
         LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
         return new GetLoanResponse(loanId);
     }
