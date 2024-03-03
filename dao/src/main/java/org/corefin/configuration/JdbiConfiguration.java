@@ -42,5 +42,4 @@ public class JdbiConfiguration {
     public LoanDao loanDao(Jdbi db) {
         return new LoanDao(db);
     }
-
 }
