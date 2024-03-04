@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -31,8 +32,8 @@ public class LoanResourceTest {
         BigDecimal targetInterestRate = BigDecimal.valueOf(2.25);
         BigDecimal effectiveInterestRate = BigDecimal.valueOf(2.25);
         String externalReference = UUID.randomUUID().toString();
-        ZonedDateTime startDate = ZonedDateTime.now();
-        ZonedDateTime endDate = ZonedDateTime.now();
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now();
         String status = "NOT_STARTED";
         String timezone = "America/Los_Angeles";
         String region = "USA";

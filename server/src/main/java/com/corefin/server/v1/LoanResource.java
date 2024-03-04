@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 public class LoanResource {
 
     private static final Logger LOGGER = Logger.getLogger(LoanResource.class.getName());
+
     private LoanResourceManager loanResourceManager;
     @Inject
     public LoanResource(LoanResourceManager loanResourceManager) {

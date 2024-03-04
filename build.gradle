@@ -27,7 +27,7 @@ repositories {
 }
 dependencies {
     // also, need these packages for flyway migrate
-    runtimeOnly 'mysql:mysql-connector-java:8.0.23' // Use the latest version
+    implementation('mysql:mysql-connector-java:8.0.23') // Use the latest version
     implementation('org.flywaydb:flyway-gradle-plugin:3.1')
     implementation('org.flywaydb:flyway-core:8.4.4')
 }

@@ -23,15 +23,15 @@ public class JdbiConfiguration {
             @Value("${database.minIdleConnections}") int minIdleConnections,
             @Value("${database.initialPooledConnections}") int intialPooledConnections
     ) {
-        BasicDataSource bds = new BasicDataSource();
-        bds.setUsername(dbUser);
-        bds.setPassword(dbPassword);
-        bds.setUrl(dbUrl);
-        bds.addConnectionProperty("connectionTimeZone", connectionTimezone);
-        bds.setMaxTotal(maxPooledConnections);
-        bds.setMinIdle(minIdleConnections);
-        bds.setInitialSize(intialPooledConnections);
-        return bds;
+        BasicDataSource basicDataSource = new BasicDataSource();
+        basicDataSource.setUsername(dbUser);
+        basicDataSource.setPassword(dbPassword);
+        basicDataSource.setUrl(dbUrl);
+        basicDataSource.addConnectionProperty("connectionTimeZone", connectionTimezone);
+        basicDataSource.setMaxTotal(maxPooledConnections);
+        basicDataSource.setMinIdle(minIdleConnections);
+        basicDataSource.setInitialSize(intialPooledConnections);
+        return basicDataSource;
     }
     @Bean
     public Jdbi jdbi(DataSource ds) {

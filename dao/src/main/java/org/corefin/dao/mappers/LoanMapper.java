@@ -23,8 +23,8 @@ public class LoanMapper implements RowMapper<LoanDto> {
                 rs.getBigDecimal("target_interest_rate"),
                 rs.getBigDecimal("effective_interest_rate"),
                 rs.getString("external_reference"),
-                rs.getDate("start_date").toInstant().atZone(ZoneId.of(rs.getString("timezone"))),
-                rs.getDate("end_date").toInstant().atZone(ZoneId.of(rs.getString("timezone"))),
+                rs.getDate("start_date").toLocalDate(),
+                rs.getDate("end_date").toLocalDate(),
                 rs.getString("status"), // CREATED, IN_PROGRESS, CLOSED
                 rs.getString("timezone"),
                 rs.getString("region"),

@@ -1,6 +1,6 @@
 -- Create new table 'loan'
 CREATE TABLE loan (
-  loan_id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
+  loan_id VARCHAR(36) PRIMARY KEY,
   term INT NOT NULL,
   originated_amount DECIMAL(32, 2) NOT NULL,
   currency CHAR(3) NOT NULL,

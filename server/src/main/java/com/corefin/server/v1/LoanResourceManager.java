@@ -7,6 +7,8 @@ import org.corefin.dto.LoanDto;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Service
@@ -25,7 +27,7 @@ public class LoanResourceManager {
 
     public String createLoan(CreateLoanRequest createLoanRequest) {
         LoanDto loanDto = new LoanDto(
-                null,
+                UUID.randomUUID().toString(),
                 createLoanRequest.term(),
                 createLoanRequest.originatedAmount(),
                 createLoanRequest.currency(),
@@ -39,6 +41,6 @@ public class LoanResourceManager {
                 createLoanRequest.region(),
                 createLoanRequest.state()
         );
-        return loanDao.insert(loanDto).id();
+        return loanDao.insert(loanDto).loanId();
     }
 }

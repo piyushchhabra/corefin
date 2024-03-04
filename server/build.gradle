@@ -25,6 +25,7 @@ task prepareKotlinBuildScriptModel {
 }
 
 dependencies {
+    implementation('mysql:mysql-connector-java:8.0.23')
     implementation('org.springframework.boot:spring-boot-starter-jersey:2.6.4')
     implementation('org.springframework.boot:spring-boot-starter-web:2.6.4')
     implementation('org.springframework.boot:spring-boot-dependencies:2.6.4')
