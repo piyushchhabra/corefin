@@ -13,7 +13,6 @@ public record CreateLoanRequest(
                       String externalReference,
                       LocalDate startDate,
                       LocalDate endDate,
-                      String status,
                       String timezone,
                       String region,
                       String state

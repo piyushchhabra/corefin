@@ -21,7 +21,13 @@ public class LoanDao implements BaseDao<LoanDto> {
     }
     // TODO: Pass in Handle here
     @Override
-    public LoanDto insert(LoanDto dto) {
+    public void insert(LoanDto dto) {
+       jdbi.useHandle(
+               handle -> insertWithReturn(dto)
+       );
+    }
+
+    public LoanDto insertWithReturn(LoanDto dto) {
         return jdbi.withHandle(
                 handle -> insert(dto, handle)
         );

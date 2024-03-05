@@ -29,8 +29,7 @@ CREATE TABLE loan_installment (
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (loan_id) REFERENCES loan(loan_id)
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create new table 'payment'

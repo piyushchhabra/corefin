@@ -7,8 +7,6 @@ import org.jdbi.v3.core.statement.StatementContext;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneId;
-import java.util.Currency;
 
 // Converts the raw database object ResultSet into the LoanDto object
 public class LoanMapper implements RowMapper<LoanDto> {

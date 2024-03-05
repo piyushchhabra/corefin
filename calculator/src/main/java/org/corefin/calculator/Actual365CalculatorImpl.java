@@ -34,7 +34,7 @@ public class Actual365CalculatorImpl {
     // rate is annual compounding interest rate / number of payments per period
     private BigDecimal getEquatedMonthlyInstallment(Loan loan, BigDecimal rate) {
         // If it's a 0% interest rate, then just do originated loan amount / number of terms
-        if (loan.targetInterestRate() == BigDecimal.ZERO) {
+        if (loan.targetInterestRate().compareTo(BigDecimal.ZERO) == 0) {
             return loan.originatedAmount().divide(new BigDecimal(loan.term()), 2, RoundingMode.HALF_UP);
         }
         return rate.multiply(rate.add(BigDecimal.ONE).pow(loan.term())).divide(
@@ -70,6 +70,7 @@ public class Actual365CalculatorImpl {
                     principalAmount,
                     interestAmount,
                     startDate,
+                    dueDate,
                     dueDate,
                     InstallmentStatus.OWED);
             installments.add(installment);

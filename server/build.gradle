@@ -37,11 +37,12 @@ dependencies {
     implementation('javax.inject:javax.inject:1')
     implementation project(path: ':dao')
     implementation project(path: ':common')
-    testImplementation(testFixtures(project(':common')))
-//    implementation('org.springframework.boot:spring-boot-starter-actuator:3.2.1')
-//    implementation('javax.ws.rs:javax.ws.rs-api:2.1.1')
-    implementation('javax.inject:javax.inject:1')
+    implementation project(path: ':calculator')
     implementation project(':dao')
+    implementation project(':common')
+    testImplementation(testFixtures(project(':common')))
+    implementation('javax.inject:javax.inject:1')
+    testImplementation project(path: ':common')
 }
 
 tasks.named('test') {

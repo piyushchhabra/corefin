@@ -1,4 +1,4 @@
-package org.corefin;
+package org.corefin.utils;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.jdbi.v3.core.Jdbi;
