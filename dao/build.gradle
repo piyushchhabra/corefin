@@ -28,6 +28,7 @@ dependencies {
     // H2 Database for in-memory database testing
     testImplementation 'com.h2database:h2:1.4.200'
 
+    implementation("mysql:mysql-connector-java:8.0.23")
     // Mockito for mocking dependencies (if needed)
     testImplementation 'org.mockito:mockito-core:4.0.0'
     implementation 'org.flywaydb:flyway-core:7.15.0'

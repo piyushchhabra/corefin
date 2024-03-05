@@ -1,6 +1,7 @@
 package com.corefin.server.v1.request;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 public record CreateLoanRequest(
@@ -10,8 +11,8 @@ public record CreateLoanRequest(
                       BigDecimal targetInterestRate,
                       BigDecimal effectiveInterestRate,
                       String externalReference,
-                      ZonedDateTime startDate,
-                      ZonedDateTime endDate,
+                      LocalDate startDate,
+                      LocalDate endDate,
                       String status,
                       String timezone,
                       String region,
