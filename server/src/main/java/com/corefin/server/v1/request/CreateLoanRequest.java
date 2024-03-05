@@ -1,10 +1,9 @@
-package org.corefin.dto;
+package com.corefin.server.v1.request;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
-// TODO: Fill this in
-public record LoanDto(String id,
+public record CreateLoanRequest(
                       int term,
                       BigDecimal originatedAmount,
                       String currency,
@@ -17,4 +16,4 @@ public record LoanDto(String id,
                       String timezone,
                       String region,
                       String state
-                      ) {}
+) {}

@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'java-test-fixtures'
 }
 
 group = 'org.corefin'
@@ -8,12 +9,22 @@ version = 'unspecified'
 repositories {
     mavenCentral()
 }
-
+java {
+    sourceCompatibility = '17'
+}
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testFixturesImplementation('org.jdbi:jdbi3-core:3.45.0')
+    testFixturesImplementation('org.apache.commons:commons-dbcp2:2.11.0')
 }
 
 test {
     useJUnitPlatform()
+}
+
+sourceSets {
+    test {
+
+    }
 }
