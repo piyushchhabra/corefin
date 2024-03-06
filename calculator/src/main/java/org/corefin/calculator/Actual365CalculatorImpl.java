@@ -32,30 +32,35 @@ import java.util.List;
 public class Actual365CalculatorImpl {
 
     // rate is annual compounding interest rate / number of payments per period
-    private BigDecimal getEquatedMonthlyInstallment(Loan loan, BigDecimal rate) {
+    public BigDecimal getEquatedMonthlyInstallment(Loan loan) {
+        BigDecimal monthlyRate = loan.targetInterestRate().divide(new BigDecimal(12),
+                10,
+                RoundingMode.HALF_UP);
         // If it's a 0% interest rate, then just do originated loan amount / number of terms
         if (loan.targetInterestRate().compareTo(BigDecimal.ZERO) == 0) {
             return loan.originatedAmount().divide(new BigDecimal(loan.term()), 2, RoundingMode.HALF_UP);
         }
-        return rate.multiply(rate.add(BigDecimal.ONE).pow(loan.term())).divide(
-                (rate.add(BigDecimal.ONE).pow(loan.term())).subtract(BigDecimal.ONE),
-                2,
+        return monthlyRate.multiply(monthlyRate.add(BigDecimal.ONE).pow(loan.term())).divide(
+                (monthlyRate.add(BigDecimal.ONE).pow(loan.term())).subtract(BigDecimal.ONE),
+                10,
                 RoundingMode.HALF_UP
-        ).multiply(loan.originatedAmount());
+        ).multiply(loan.originatedAmount()).setScale(2, RoundingMode.HALF_UP);
     }
 
     public List<Installment> getActual365AmortizationSchedule(Loan loan) {
         List<Installment> installments = new ArrayList<>();
-        BigDecimal rate = loan.targetInterestRate().divide(new BigDecimal(12.00),
-                2,
-                RoundingMode.HALF_UP);
-        BigDecimal installmentAmount = getEquatedMonthlyInstallment(loan, rate);
+        BigDecimal installmentAmount = getEquatedMonthlyInstallment(loan);
         BigDecimal outstandingPrincipal = loan.originatedAmount();
         LocalDate startDate = loan.startDate();
         LocalDate dueDate = loan.startDate().plusMonths(1);
+        BigDecimal dailyRate = loan.targetInterestRate().divide(new BigDecimal(365),
+                10,
+                RoundingMode.HALF_UP);
         for (int i = 0; i < loan.term(); i++) {
             long numDays = ChronoUnit.DAYS.between(dueDate, startDate);
-            BigDecimal interestAmount = rate.multiply(BigDecimal.valueOf(numDays)).multiply(outstandingPrincipal).setScale(2);
+            BigDecimal interestAmount = dailyRate.multiply(BigDecimal.valueOf(numDays))
+                    .multiply(outstandingPrincipal)
+                    .setScale(2, RoundingMode.HALF_UP);
             // Last installment
             BigDecimal principalAmount;
             if (i == loan.term() - 1) {
