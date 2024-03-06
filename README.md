@@ -3,7 +3,7 @@
   src="./docs/imgs/logo.png">
 </h1>
 <p align="center">
-  <i>The world's open source available lending platform</i>
+  <i>The world's open source lending platform</i>
 </p>
 
 
