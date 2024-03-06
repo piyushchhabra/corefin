@@ -1,6 +1,7 @@
 package com.corefin.server.v1;
 
 import com.corefin.server.configuration.JerseyConfig;
+import com.corefin.server.v1.model.LoanInfo;
 import com.corefin.server.v1.request.CreateLoanRequest;
 import com.corefin.server.v1.response.GetLoanResponse;
 import org.springframework.context.annotation.Import;
@@ -15,6 +16,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 @Component
@@ -33,15 +37,13 @@ public class LoanResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public GetLoanResponse createLoan(CreateLoanRequest createLoanRequest) {
-        String loanId = loanResourceManager.createLoan(createLoanRequest);
-        LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
-        return new GetLoanResponse(loanId);
+        return loanResourceManager.createLoan(createLoanRequest);
     }
     @GET
     @Path("/{loanId}")
     @Produces(MediaType.APPLICATION_JSON)
     public GetLoanResponse getLoan(@PathParam("loanId") String loanId) {
         LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
-        return new GetLoanResponse(loanId);
+        return loanResourceManager.doGetLoan(loanId);
     }
 }

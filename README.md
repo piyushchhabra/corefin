@@ -46,11 +46,11 @@ curl --location 'http://localhost:8080/loans' \
     "term": 6,
     "originatedAmount": 1000.00,
     "currency": "USD",
-    "targetInterestRate": 0.00,
-    "effectiveInterestRate": 0.00,
+    "targetInterestRate": 0.10,
+    "effectiveInterestRate": 0.10,
     "externalReference": "orderId_12345",
-    "startDate": "2024-03-03",
-    "endDate": "2024-03-03",
+    "startDate": "2024-03-01",
+    "endDate": "2024-03-01",
     "timezone": "America/Los_Angeles",
     "region": "US",
     "state": "CA"
@@ -61,12 +61,12 @@ curl --location 'http://localhost:8080/loans' \
 `select loan_installment_id, num_term, principal_amount, interest_amount from loan_installment;`
 
 # Coming soon!
-- Interest bearing loan installment schedules
 - Accepting on-time, early and late payments
 - Paid, hosted version
 - BaaS integration for 1-line loan originations
 - Management portal
 - Auditability and reporting features
+- Authentication
 
 # Roadmap
 1. Completing the open source core LMS software.

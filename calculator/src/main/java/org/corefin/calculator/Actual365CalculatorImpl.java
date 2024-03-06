@@ -53,11 +53,12 @@ public class Actual365CalculatorImpl {
         BigDecimal outstandingPrincipal = loan.originatedAmount();
         LocalDate startDate = loan.startDate();
         LocalDate dueDate = loan.startDate().plusMonths(1);
+        LocalDate endDate = dueDate.minusDays(1);
         BigDecimal dailyRate = loan.targetInterestRate().divide(new BigDecimal(365),
                 10,
                 RoundingMode.HALF_UP);
         for (int i = 0; i < loan.term(); i++) {
-            long numDays = ChronoUnit.DAYS.between(dueDate, startDate);
+            long numDays = ChronoUnit.DAYS.between(startDate, endDate);
             BigDecimal interestAmount = dailyRate.multiply(BigDecimal.valueOf(numDays))
                     .multiply(outstandingPrincipal)
                     .setScale(2, RoundingMode.HALF_UP);
@@ -76,11 +77,12 @@ public class Actual365CalculatorImpl {
                     interestAmount,
                     startDate,
                     dueDate,
-                    dueDate,
+                    endDate,
                     InstallmentStatus.OWED);
             installments.add(installment);
             startDate = dueDate;
             dueDate = dueDate.plusMonths(1);
+            endDate = dueDate.minusDays(1);
             outstandingPrincipal = outstandingPrincipal.subtract(principalAmount);
         }
         return installments;
