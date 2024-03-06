@@ -3,11 +3,11 @@
   src="./docs/imgs/logo.png">
 </h1>
 <p align="center">
-  <i>The world's first source available lending platform</i>
+  <i>The world's open source available lending platform</i>
 </p>
 
 
-Corefin is the world's first source available lending platform. It allows you to deeply customize this software
+Corefin is the world's first open source lending platform. It allows you to deeply customize this software
 for your company's needs. It uses the Actual/365 method for calculating interest. See information from the
 [CFPB](https://www.consumerfinance.gov/rules-policy/regulations/1030/7/).
 
@@ -69,7 +69,7 @@ curl --location 'http://localhost:8080/loans' \
 - Auditability and reporting features
 
 # Roadmap
-1. Completing the source available LMS software.
+1. Completing the open source core LMS software.
 2. Simplify your embedded finance stack by offering underwriting and hosting services
 3. Build out auditability and reporting features.
 
