@@ -10,5 +10,5 @@ db-migrate:
 gen-migration:
 	./scripts/gen_db_migration.sh
 docker-stubs:
-	docker-compose up
+	docker-compose up -d
 
