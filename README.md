@@ -16,9 +16,9 @@ Built by the engineers who built Square's first Consumer Lending product (Afterp
 
 <h4 align="center">
     <p>
-        <a href="#-prereqs">Prerequisites</a> |
-        <a href="#-getting-started">Getting Started</a> |
-        <a href="#-coming-soon">Coming Soon</a> |
+        <a href="#prereqs">Prerequisites</a> |
+        <a href="#getting-started">Getting Started</a> |
+        <a href="#coming-soon">Coming Soon</a> |
     <p>
 </h4>
 
