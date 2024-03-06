@@ -31,8 +31,11 @@ Built by the engineers who built Square's first Consumer Lending product (Afterp
 
 # Getting Started
 - Boot it up
+
 `make docker-stubs`
+
 `make db-migrate`
+
 `make run-server`
 
 - Create a 0% loan
