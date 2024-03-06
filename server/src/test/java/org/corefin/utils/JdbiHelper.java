@@ -8,9 +8,9 @@ public class JdbiHelper {
     private static DataSource dataSource() {
 
         BasicDataSource bds = new BasicDataSource();
-        bds.setUsername("admin");
+        bds.setUsername("root");
         bds.setPassword("password");
-        bds.setUrl("jdbc:mysql://localhost:3306");
+        bds.setUrl("jdbc:mysql://localhost:3306/corefin_db");
         bds.addConnectionProperty("connectionTimeZone", "UTC");
         bds.setMaxTotal(-1);
         bds.setMinIdle(5);
