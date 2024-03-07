@@ -57,7 +57,11 @@ public class Actual365CalculatorImpl {
                 10,
                 RoundingMode.HALF_UP);
         for (int i = 0; i < loan.term(); i++) {
-            long numDays = ChronoUnit.DAYS.between(startDate, endDate);
+            // Note: between is [startDate inclusive, dueDate exclusive)
+            // For example: 1/1 -> 1/31, 2/1 -> 2/28
+            // And so the correct numnber of days to calculate nterest
+            // accrues from 1/1 -> 1/31 (31 days).
+            long numDays = ChronoUnit.DAYS.between(startDate, dueDate);
             BigDecimal interestAmount = dailyRate.multiply(BigDecimal.valueOf(numDays))
                     .multiply(outstandingPrincipal)
                     .setScale(2, RoundingMode.HALF_UP);

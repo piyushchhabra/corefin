@@ -5,6 +5,10 @@ import org.corefin.dto.LoanInstallmentDto;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 public class LoanInstallmentDao implements BaseDao<LoanInstallmentDto> {
     private Jdbi jdbi;
     public LoanInstallmentDao(Jdbi jdbi) {
@@ -59,6 +63,39 @@ public class LoanInstallmentDao implements BaseDao<LoanInstallmentDto> {
                         .mapTo(LoanInstallmentDto.class)
                         .findOne()
                         .orElse(null)
+        );
+    }
+
+    public List<LoanInstallmentDto> findByLoanId(String loanId) {
+        return jdbi.withHandle(
+                handle -> handle.createQuery("SELECT * FROM loan_installment WHERE loan_id= :loan_id")
+                        .bind("loan_id", loanId)
+                        .mapTo(LoanInstallmentDto.class)
+                        .list()
+        );
+    }
+    public void updateInstallmentForPayment(LoanInstallmentDto loanInstallmentDto) {
+        String updateQuery = """
+                UPDATE loan_installment set
+                    principal_amount = :principal_amount,
+                    interest_amount = :interest_amount,
+                    status = :status,
+                    end_date = :end_date
+                WHERE loan_id = :loan_id AND
+                      loan_installment_id = :loan_installment_id
+                """;
+        // TODO: check if row count == 0 -> that means an exception happened
+        jdbi.useHandle(
+                handle -> {
+                    handle.createUpdate(updateQuery)
+                            .bind("loan_id", loanInstallmentDto.loanId())
+                            .bind("loan_installment_id", loanInstallmentDto.installmentId())
+                            .bind("principal_amount", loanInstallmentDto.principalAmount())
+                            .bind("interest_amount", loanInstallmentDto.interestAmount())
+                            .bind("status", loanInstallmentDto.status().toString())
+                            .bind("end_date", ZonedDateTime.now().toLocalDate())
+                            .execute();
+                }
         );
     }
     @Override

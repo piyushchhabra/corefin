@@ -2,12 +2,24 @@ package com.corefin.server.v1;
 
 import com.corefin.server.exception.CorefinException;
 import com.corefin.server.v1.request.MakePaymentRequest;
+import com.corefin.server.v1.response.GetLoanResponse;
 import org.corefin.calculator.Actuarial365Calculator;
 import org.corefin.dao.LoanDao;
 import org.corefin.dao.LoanInstallmentDao;
+import org.corefin.dao.PaymentDao;
+import org.corefin.dto.LoanInstallmentDto;
+import org.corefin.dto.PaymentDto;
+import org.corefin.model.common.InstallmentStatus;
+import org.corefin.model.common.PaymentType;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
@@ -17,23 +29,73 @@ public class PaymentResourceManager {
     private Actuarial365Calculator calculator;
     private LoanDao loanDao;
     private LoanInstallmentDao loanInstallmentDao;
+    private PaymentDao paymentDao;
+    private LoanResourceManager loanResourceManager;
 
     @Inject
     public PaymentResourceManager(LoanDao loanDao,
-                                  LoanInstallmentDao loanInstallmentDao) {
+                                  LoanInstallmentDao loanInstallmentDao,
+                                  PaymentDao paymentDao,
+                                  @Lazy LoanResourceManager loanResourceManager) {
         this.calculator = new Actuarial365Calculator();
         this.loanDao = loanDao;
         this.loanInstallmentDao = loanInstallmentDao;
+        this.paymentDao = paymentDao;
+        this.loanResourceManager = loanResourceManager;
     }
 
-    public String getPaymentInfo(String paymentId) {
-        // paymentDao
-        return "";
-    }
-
-    public String doMakePayment(String loanId, MakePaymentRequest makePaymentRequest) {
+    // TODO: Handle off-cycle payments
+    // TODO: do calculator integration for early, late payments
+    // TODO: Pin to Loan's zone time (paymentDto)
+    // TODO: Transactions
+    public GetLoanResponse doMakePayment(String loanId, MakePaymentRequest makePaymentRequest) {
         validateMakePaymentRequest(loanId);
-        return "";
+        List<LoanInstallmentDto> loanInstallmentDtoList = loanInstallmentDao.findByLoanId(loanId);
+        Optional<LoanInstallmentDto> firstUnpaidInstallmentOptional =
+                loanInstallmentDtoList.stream()
+                        .filter(c -> c.status() == InstallmentStatus.OWED)
+                        .findFirst();
+        if (!firstUnpaidInstallmentOptional.isPresent()) {
+            throw new CorefinException("No unpaid installments");
+        }
+        LoanInstallmentDto firstUnpaidInstallment = firstUnpaidInstallmentOptional.get();
+        BigDecimal installmentAmount = firstUnpaidInstallment.interestAmount()
+                .add(firstUnpaidInstallment.principalAmount());
+        validateMakePaymentRequestAmount(installmentAmount, makePaymentRequest.amount());
+
+        String paymentId = UUID.randomUUID().toString();
+        PaymentDto paymentDto = new PaymentDto(
+                paymentId,
+                loanId,
+                makePaymentRequest.amount(),
+                PaymentType.valueOf(makePaymentRequest.paymentType()),
+                ZonedDateTime.now()
+        );
+        paymentDao.insert(paymentDto);
+        loanInstallmentDao.updateInstallmentForPayment(
+                new LoanInstallmentDto(
+                        firstUnpaidInstallment.installmentId(),
+                        InstallmentStatus.PAID,
+                        firstUnpaidInstallment.loanId(),
+                        firstUnpaidInstallment.numTerm(),
+                        firstUnpaidInstallment.principalAmount(),
+                        firstUnpaidInstallment.interestAmount(),
+                        firstUnpaidInstallment.startDate(),
+                        firstUnpaidInstallment.dueDate(),
+                        firstUnpaidInstallment.endDate()
+                )
+        );
+
+        return loanResourceManager.doGetLoan(loanId);
+    }
+
+    private void validateMakePaymentRequestAmount(BigDecimal installmentAmount,
+                                               BigDecimal paymentAmount) {
+        if (installmentAmount.compareTo(paymentAmount) != 0) {
+            LOGGER.severe("Installment amount doesn't match with payment amount. " +
+                    "Installment amount %s. Payment Amount: %s".formatted(installmentAmount, paymentAmount));
+            throw new CorefinException("Payment amount doesn't equal installment amount");
+        }
     }
 
     private void validateMakePaymentRequest(String loanId) {
