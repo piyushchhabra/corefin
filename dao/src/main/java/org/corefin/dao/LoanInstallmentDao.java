@@ -1,7 +1,6 @@
 package org.corefin.dao;
 
 import org.corefin.dao.mappers.LoanInstallmentMapper;
-import org.corefin.dao.mappers.LoanMapper;
 import org.corefin.dto.LoanInstallmentDto;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;

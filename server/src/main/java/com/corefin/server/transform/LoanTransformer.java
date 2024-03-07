@@ -6,8 +6,6 @@ import com.corefin.server.v1.request.CreateLoanRequest;
 import org.corefin.calculator.model.Loan;
 import org.corefin.dto.LoanDto;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Collections.emptyList;

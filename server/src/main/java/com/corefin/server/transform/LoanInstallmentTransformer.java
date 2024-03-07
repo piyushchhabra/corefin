@@ -2,11 +2,8 @@ package com.corefin.server.transform;
 
 import com.corefin.server.v1.model.LoanInstallmentInfo;
 import org.corefin.calculator.model.Installment;
-import org.corefin.calculator.model.InstallmentStatus;
-import org.corefin.dto.LoanDto;
 import org.corefin.dto.LoanInstallmentDto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class LoanInstallmentTransformer {

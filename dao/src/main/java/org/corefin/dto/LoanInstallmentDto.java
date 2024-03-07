@@ -1,10 +1,10 @@
 package org.corefin.dto;
 
-import org.corefin.calculator.model.InstallmentStatus;
+
+import org.corefin.model.common.InstallmentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 
 public record LoanInstallmentDto (
         String installmentId,

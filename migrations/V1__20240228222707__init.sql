@@ -39,8 +39,6 @@ CREATE TABLE payment (
   amount DECIMAL(32, 2) NOT NULL,
   payment_type VARCHAR(36) NOT NULL,
   payment_datetime TIMESTAMP,
-  timezone VARCHAR(36) NOT NULL,
-  is_reversed BOOL NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (loan_id) REFERENCES loan(loan_id)

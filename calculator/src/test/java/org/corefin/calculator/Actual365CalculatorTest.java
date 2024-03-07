@@ -1,8 +1,8 @@
 package org.corefin.calculator;
 
 import org.corefin.calculator.model.Installment;
-import org.corefin.calculator.model.InstallmentStatus;
 import org.corefin.calculator.model.Loan;
+import org.corefin.model.common.InstallmentStatus;
 import org.joda.money.CurrencyUnit;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -13,10 +13,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Currency;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Stream;

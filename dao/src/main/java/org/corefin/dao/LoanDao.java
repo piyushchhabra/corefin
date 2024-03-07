@@ -4,13 +4,6 @@ import org.corefin.dao.mappers.LoanMapper;
 import org.corefin.dto.LoanDto;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.result.ResultBearing;
-import org.jdbi.v3.core.statement.Update;
-
-import javax.xml.transform.Result;
-import java.sql.Statement;
-import java.util.Optional;
-import java.util.UUID;
 
 // TODO: implement me
 public class LoanDao implements BaseDao<LoanDto> {

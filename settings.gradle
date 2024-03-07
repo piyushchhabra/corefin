@@ -11,6 +11,7 @@ plugins {
 }
 
 rootProject.name = 'corefin'
+include 'common'
 include 'server'
 include 'dao'
 include 'common'

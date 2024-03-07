@@ -25,6 +25,8 @@ task prepareKotlinBuildScriptModel {
 }
 
 dependencies {
+    implementation project(path: ':calculator')
+    compileOnly 'org.springframework.boot:spring-boot-starter-actuator:2.6.4'
     implementation('mysql:mysql-connector-java:8.0.23')
     implementation('org.springframework.boot:spring-boot-starter-jersey:2.6.4')
     implementation('org.springframework.boot:spring-boot-starter-web:2.6.4')
@@ -36,13 +38,15 @@ dependencies {
 //    implementation('javax.ws.rs:javax.ws.rs-api:2.1.1')
     implementation('javax.inject:javax.inject:1')
     implementation project(path: ':dao')
-    implementation project(path: ':common')
-    implementation project(path: ':calculator')
+//    implementation project(path: ':common')
     implementation project(':dao')
-    implementation project(':common')
-    testImplementation(testFixtures(project(':common')))
+//    implementation project(':common')
+//    testImplementation(testFixtures(project(':common')))
     implementation('javax.inject:javax.inject:1')
-    testImplementation project(path: ':common')
+    implementation project(path: ':common')
+
+//    testImplementation project(path: ':common')
+    compileOnly 'org.projectlombok:lombok:1.18.24'
 }
 
 tasks.named('test') {

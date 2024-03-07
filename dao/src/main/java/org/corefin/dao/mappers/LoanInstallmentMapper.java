@@ -1,8 +1,8 @@
 package org.corefin.dao.mappers;
 
 
-import org.corefin.calculator.model.InstallmentStatus;
 import org.corefin.dto.LoanInstallmentDto;
+import org.corefin.model.common.InstallmentStatus;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 

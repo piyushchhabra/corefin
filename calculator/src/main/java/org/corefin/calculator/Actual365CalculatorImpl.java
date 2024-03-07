@@ -1,13 +1,12 @@
 package org.corefin.calculator;
 
 import org.corefin.calculator.model.Installment;
-import org.corefin.calculator.model.InstallmentStatus;
 import org.corefin.calculator.model.Loan;
+import org.corefin.model.common.InstallmentStatus;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;

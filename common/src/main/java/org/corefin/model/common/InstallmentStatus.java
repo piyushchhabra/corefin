@@ -1,4 +1,4 @@
-package org.corefin.calculator.model;
+package org.corefin.model.common;
 
 public enum InstallmentStatus {
     OWED,

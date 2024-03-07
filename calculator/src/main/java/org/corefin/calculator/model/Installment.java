@@ -1,8 +1,10 @@
 package org.corefin.calculator.model;
 
+
+import org.corefin.model.common.InstallmentStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 
 public record Installment(
         String installmentId,

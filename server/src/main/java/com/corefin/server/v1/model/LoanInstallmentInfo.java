@@ -1,6 +1,6 @@
 package com.corefin.server.v1.model;
 
-import org.corefin.calculator.model.InstallmentStatus;
+import org.corefin.model.common.InstallmentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
