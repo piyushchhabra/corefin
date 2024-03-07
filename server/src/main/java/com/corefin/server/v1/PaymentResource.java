@@ -37,7 +37,7 @@ public class PaymentResource {
 
     @POST
     @Path("{loanId}/makePayment")
-    @Produces(MediaType.TEXT_PLAIN)
+//    @Produces(MediaType.TEXT_PLAIN)
     public String makePayment(@PathParam("loanId") String loanId,
                               @Valid MakePaymentRequest makePaymentRequest) {
         LOGGER.info("makePayment called for loan with id %s".formatted(loanId));

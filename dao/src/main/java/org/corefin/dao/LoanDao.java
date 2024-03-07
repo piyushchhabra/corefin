@@ -81,7 +81,7 @@ public class LoanDao implements BaseDao<LoanDto> {
                         .bind("loan_id", loanId)
                         .mapTo(LoanDto.class)
                         .findOne()
-                        .orElse(null)
+                        .orElseThrow()
         );
     }
     @Override
