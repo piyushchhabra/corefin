@@ -130,43 +130,43 @@ public class Actual365CalculatorTest {
                                 Arrays.asList(
                                         new Installment(
                                                 "", "", 1,
-                                                new BigDecimal("163.34"),
-                                                new BigDecimal("8.22"),
+                                                new BigDecimal("163.07"),
+                                                new BigDecimal("8.49"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         ),
                                         new Installment(
                                                 "", "", 2,
-                                                new BigDecimal("164.91"),
-                                                new BigDecimal("6.65"),
+                                                new BigDecimal("164.68"),
+                                                new BigDecimal("6.88"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         ),
                                         new Installment(
                                                 "", "", 3,
-                                                new BigDecimal("166.04"),
-                                                new BigDecimal("5.52"),
+                                                new BigDecimal("165.85"),
+                                                new BigDecimal("5.71"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         ),
                                         new Installment(
                                                 "", "", 4,
-                                                new BigDecimal("167.54"),
-                                                new BigDecimal("4.02"),
+                                                new BigDecimal("167.40"),
+                                                new BigDecimal("4.16"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         ),
                                         new Installment(
                                                 "", "", 5,
-                                                new BigDecimal("168.78"),
-                                                new BigDecimal("2.78"),
+                                                new BigDecimal("168.68"),
+                                                new BigDecimal("2.88"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         ),
                                         new Installment(
                                                 "", "", 6,
-                                                new BigDecimal("169.39"),
-                                                new BigDecimal("1.39"),
+                                                new BigDecimal("170.32"),
+                                                new BigDecimal("1.45"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         )
@@ -188,8 +188,8 @@ public class Actual365CalculatorTest {
                 CurrencyUnit.USD.toString(),
                 targetAPR,
                 targetAPR,
-                LocalDate.now(),
-                LocalDate.now(),
+                LocalDate.of(2024, 03, 06),
+                LocalDate.of(2024, 03, 06),
                 "IN_PROGRESS",
                 TimeZone.getTimeZone("America/Los_Angeles").toString(),
                 new ArrayList<>(),

@@ -10,14 +10,14 @@ public class LoanInstallmentTransformer {
     public static LoanInstallmentDto transform(Installment installment, String loanId) {
         return new LoanInstallmentDto(
                 installment.installmentId(),
+                installment.status(),
                 loanId,
                 installment.numTerm(),
                 installment.principalAmount(),
                 installment.interestAmount(),
                 installment.startDate(),
                 installment.dueDate(),
-                installment.endDate(),
-                installment.status()
+                installment.endDate()
         );
     }
 

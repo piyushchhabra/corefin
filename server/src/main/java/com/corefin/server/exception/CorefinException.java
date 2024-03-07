@@ -4,4 +4,8 @@ public class CorefinException extends RuntimeException {
     public CorefinException(String errorMessage, Throwable err) {
         super(errorMessage, err);
     }
+
+    public CorefinException(String errorMessage) {
+        super(errorMessage);
+    }
 }

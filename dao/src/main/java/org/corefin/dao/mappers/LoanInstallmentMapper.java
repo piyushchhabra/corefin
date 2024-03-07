@@ -16,14 +16,14 @@ public class LoanInstallmentMapper implements RowMapper<LoanInstallmentDto> {
     public LoanInstallmentDto map(ResultSet rs, StatementContext ctx) throws SQLException {
         return new LoanInstallmentDto(
                 rs.getString("loan_installment_id"),
+                InstallmentStatus.valueOf(rs.getString("status")),
                 rs.getString("loan_id"),
                 rs.getInt("num_term"),
                 rs.getBigDecimal("principal_amount"),
                 rs.getBigDecimal("interest_amount"),
                 rs.getDate("start_date").toLocalDate(),
                 rs.getDate("due_date").toLocalDate(),
-                rs.getDate("end_date").toLocalDate(),
-                InstallmentStatus.valueOf(rs.getString("status"))
+                rs.getDate("end_date").toLocalDate()
         );
     }
 }
