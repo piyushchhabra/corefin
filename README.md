@@ -26,7 +26,12 @@ Built by the engineers who built Square's first Consumer Lending product (Afterp
 
 - Make sure you have docker installed.
 - Make sure you have Java17 installed.
+
 `brew install openjdk@17`
+Check which Java versions you have installed:
+`/usr/libexec/java_home -V` 
+Set the java version:
+`export JAVA_HOME=$(/usr/libexec/java_home -v 17.0.10)` 
 
 
 # Getting Started
