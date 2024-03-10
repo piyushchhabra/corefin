@@ -37,22 +37,14 @@ public class LoanResourceManager {
     }
 
     public GetLoanResponse doGetLoan(String loanId) {
-        return new GetLoanResponse(new LoanInfo(
-                "",
-                6,
-                BigDecimal.ZERO,
-                "USD",
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                "orderNumber123",
-                LocalDate.now(),
-                LocalDate.now(),
-                "ORIGINATED",
-                "America/Los_Angeles",
-                "US",
-                "CA",
-                new ArrayList<>()
-        ));
+        LoanDto loanDto = loanDao.findById(loanId);
+        List<LoanInstallmentDto> loanInstallmentDtos = loanInstallmentDao.findByLoanId(loanId);
+
+        return new GetLoanResponse(
+                LoanTransformer.transformToLoanInfo(
+                        loanDto,
+                        loanInstallmentDtos
+                ));
     }
 
     public GetLoanResponse createLoan(CreateLoanRequest createLoanRequest) {
@@ -84,7 +76,7 @@ public class LoanResourceManager {
         return new GetLoanResponse(
                 LoanTransformer.transformToLoanInfo(
                         loanDto,
-                        LoanInstallmentTransformer.transform(loanInstallmentDtos)
+                        loanInstallmentDtos
                 ));
 
     }

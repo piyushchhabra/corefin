@@ -2,6 +2,7 @@ package org.corefin.calculator;
 
 import org.corefin.calculator.model.Installment;
 import org.corefin.calculator.model.Loan;
+import org.corefin.calculator.model.Payment;
 import org.corefin.model.common.InstallmentStatus;
 
 import java.math.BigDecimal;
@@ -37,19 +38,19 @@ public class Actual365CalculatorImpl {
                 RoundingMode.HALF_UP);
         // If it's a 0% interest rate, then just do originated loan amount / number of terms
         if (loan.targetInterestRate().compareTo(BigDecimal.ZERO) == 0) {
-            return loan.originatedAmount().divide(new BigDecimal(loan.term()), 2, RoundingMode.HALF_UP);
+            return loan.originatedPrincipal().divide(new BigDecimal(loan.term()), 2, RoundingMode.HALF_UP);
         }
         return monthlyRate.multiply(monthlyRate.add(BigDecimal.ONE).pow(loan.term())).divide(
                 (monthlyRate.add(BigDecimal.ONE).pow(loan.term())).subtract(BigDecimal.ONE),
                 10,
                 RoundingMode.HALF_UP
-        ).multiply(loan.originatedAmount()).setScale(2, RoundingMode.HALF_UP);
+        ).multiply(loan.originatedPrincipal()).setScale(2, RoundingMode.HALF_UP);
     }
 
     public List<Installment> getActual365AmortizationSchedule(Loan loan) {
         List<Installment> installments = new ArrayList<>();
         BigDecimal installmentAmount = getEquatedMonthlyInstallment(loan);
-        BigDecimal outstandingPrincipal = loan.originatedAmount();
+        BigDecimal outstandingPrincipal = loan.originatedPrincipal();
         LocalDate startDate = loan.startDate();
         LocalDate dueDate = loan.startDate().plusMonths(1);
         LocalDate endDate = dueDate.minusDays(1);
@@ -96,4 +97,30 @@ public class Actual365CalculatorImpl {
         // just compute days
         return getActual365AmortizationSchedule(loan);
     }
+
+    public List<Installment> updateInstallments(Loan loan,
+                                                List<Payment> payments,
+                                                List<Installment> installments) {
+        // TODO(hubert): validate that the List<Installment> have the correct p/i breakdown
+        // TODO: Validate paymentAmount == EMI amount
+        // TODO: Generate installment mappings from payment inputs
+        // TODO: Generate payment UUID, compute mappings and then use same UUID to persist to DB
+        // TODO: Compute interest from last calculation date to paymentDate
+        RunningBalance runningBalance = new RunningBalance(
+                loan.originatedPrincipal(),
+                BigDecimal.ZERO,
+                loan.targetInterestRate(),
+                loan.startDate());
+
+        return new ArrayList<>();
+    }
+
+    // RunningBalance is the internal data structure we will use to
+    // maintain the state of the calculations
+    private record RunningBalance(
+            BigDecimal outstandingPrincipal,
+            BigDecimal accruedInterest,
+            BigDecimal targetAPR,
+            LocalDate currentCalculationDate
+    ) { }
 }
