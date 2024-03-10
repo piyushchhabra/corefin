@@ -5,6 +5,7 @@ import com.corefin.server.v1.model.LoanInstallmentInfo;
 import com.corefin.server.v1.request.CreateLoanRequest;
 import org.corefin.calculator.model.Loan;
 import org.corefin.dto.LoanDto;
+import org.corefin.dto.LoanInstallmentDto;
 
 import java.util.List;
 
@@ -23,14 +24,12 @@ public class LoanTransformer {
                 createLoanRequest.startDate(),
                 createLoanRequest.endDate(),
                 createLoanRequest.timezone(),
-                "",
-                emptyList(),
-                emptyList()
+                ""
                 );
     }
 
     public static LoanInfo transformToLoanInfo(LoanDto loanDto,
-                                               List<LoanInstallmentInfo> loanInstallmentInfoList) {
+                                               List<LoanInstallmentDto> loanInstallmentInfoList) {
         return new LoanInfo(
                 loanDto.loanId(),
                 loanDto.term(),
@@ -45,7 +44,7 @@ public class LoanTransformer {
                 loanDto.timezone(),
                 loanDto.region(),
                 loanDto.state(),
-                loanInstallmentInfoList
+                LoanInstallmentTransformer.transform(loanInstallmentInfoList)
         );
     }
 }

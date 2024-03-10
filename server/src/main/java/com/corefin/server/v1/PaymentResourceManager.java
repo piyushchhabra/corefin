@@ -59,6 +59,7 @@ public class PaymentResourceManager {
             throw new CorefinException("No unpaid installments");
         }
         LoanInstallmentDto firstUnpaidInstallment = firstUnpaidInstallmentOptional.get();
+        validateMakePaymentRequestDate(makePaymentRequest, firstUnpaidInstallment);
         BigDecimal installmentAmount = firstUnpaidInstallment.interestAmount()
                 .add(firstUnpaidInstallment.principalAmount());
         validateMakePaymentRequestAmount(installmentAmount, makePaymentRequest.amount());
@@ -89,8 +90,19 @@ public class PaymentResourceManager {
         return loanResourceManager.doGetLoan(loanId);
     }
 
+    private void validateMakePaymentRequestDate(MakePaymentRequest makePaymentRequest,
+                                                LoanInstallmentDto firstUnpaidInstallment) {
+        if (!makePaymentRequest.paymentDateTime().toLocalDate().equals(firstUnpaidInstallment.dueDate())) {
+            LOGGER.severe("Payment date %s and due date %s don't match. Your version of" +
+                    "Corefin currently only supports on-time payments.".formatted(
+                            makePaymentRequest.paymentDateTime(),
+                            firstUnpaidInstallment.dueDate()
+                    ));
+            throw new CorefinException("Payment amount doesn't equal installment amount");
+        }
+    }
     private void validateMakePaymentRequestAmount(BigDecimal installmentAmount,
-                                               BigDecimal paymentAmount) {
+                                                  BigDecimal paymentAmount) {
         if (installmentAmount.compareTo(paymentAmount) != 0) {
             LOGGER.severe("Installment amount doesn't match with payment amount. " +
                     "Installment amount %s. Payment Amount: %s".formatted(installmentAmount, paymentAmount));
