@@ -41,9 +41,7 @@ public class Actual365CalculatorTest {
                 LocalDate.now(),
                 LocalDate.now(),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString(),
-                new ArrayList<>(),
-                new ArrayList<>()
+                TimeZone.getTimeZone("America/Los_Angeles").toString()
         );
     }
 
@@ -59,9 +57,7 @@ public class Actual365CalculatorTest {
                 LocalDate.now(),
                 LocalDate.now(),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString(),
-                new ArrayList<>(),
-                new ArrayList<>()
+                TimeZone.getTimeZone("America/Los_Angeles").toString()
         );
         List<Installment> installments = actual365Calculator.newInstallments(loanConfig);
         assertPrincipalAmount(installments, originatedPrincipalAmount);
@@ -108,9 +104,7 @@ public class Actual365CalculatorTest {
                 LocalDate.now(),
                 LocalDate.now(),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString(),
-                new ArrayList<>(),
-                new ArrayList<>()
+                TimeZone.getTimeZone("America/Los_Angeles").toString()
         );
         assertEquals(expectedEmi, actual365Calculator.getEquatedMonthlyInstallment(loanConfig));
     }
@@ -191,9 +185,7 @@ public class Actual365CalculatorTest {
                 LocalDate.of(2024, 03, 06),
                 LocalDate.of(2024, 03, 06),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString(),
-                new ArrayList<>(),
-                new ArrayList<>()
+                TimeZone.getTimeZone("America/Los_Angeles").toString()
         );
 
         List<Installment> resultInstallments = actual365Calculator.newInstallments(loanConfig);
