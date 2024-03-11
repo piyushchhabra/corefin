@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -15,6 +14,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.logging.Logger;
 
+/*
+ * Payment Resource to handle all payment related apis.
+ * TODOs:
+ * - Implement /refund suite
+ * - Implement /reversals
+ * - Reopen a loan when a reversal has taken place.
+ * - Refund should be able to close a loan
+ */
 @Component
 @Path("/payments")
 @Consumes(MediaType.APPLICATION_JSON)

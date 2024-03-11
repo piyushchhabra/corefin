@@ -7,6 +7,8 @@ import org.corefin.calculator.model.Loan;
 import org.corefin.dto.LoanDto;
 import org.corefin.dto.LoanInstallmentDto;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -22,9 +24,13 @@ public class LoanTransformer {
                 createLoanRequest.targetInterestRate(),
                 createLoanRequest.effectiveInterestRate(),
                 createLoanRequest.startDate(),
-                createLoanRequest.endDate(),
                 createLoanRequest.timezone(),
-                ""
+                "",
+                // Unused for new Installments
+                new ArrayList<>(),
+                new ArrayList<>(),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
                 );
     }
 
