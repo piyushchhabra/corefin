@@ -2,7 +2,9 @@ package org.corefin.calculator;
 
 import org.corefin.calculator.model.Installment;
 import org.corefin.calculator.model.Loan;
+import org.corefin.calculator.model.Payment;
 import org.corefin.model.common.InstallmentStatus;
+import org.corefin.model.common.PaymentType;
 import org.joda.money.CurrencyUnit;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -13,12 +15,17 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.corefin.model.common.InstallmentStatus.LATE;
+import static org.corefin.model.common.InstallmentStatus.PAID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,9 +46,12 @@ public class Actual365CalculatorTest {
                 new BigDecimal("0.08"),
                 new BigDecimal("0.08"),
                 LocalDate.now(),
-                LocalDate.now(),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString()
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
         );
     }
 
@@ -55,9 +65,12 @@ public class Actual365CalculatorTest {
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
                 LocalDate.now(),
-                LocalDate.now(),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString()
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
         );
         List<Installment> installments = actual365Calculator.newInstallments(loanConfig);
         assertPrincipalAmount(installments, originatedPrincipalAmount);
@@ -102,9 +115,12 @@ public class Actual365CalculatorTest {
                 targetAPR,
                 targetAPR,
                 LocalDate.now(),
-                LocalDate.now(),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString()
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
         );
         assertEquals(expectedEmi, actual365Calculator.getEquatedMonthlyInstallment(loanConfig));
     }
@@ -183,9 +199,12 @@ public class Actual365CalculatorTest {
                 targetAPR,
                 targetAPR,
                 LocalDate.of(2024, 03, 06),
-                LocalDate.of(2024, 03, 06),
                 "IN_PROGRESS",
-                TimeZone.getTimeZone("America/Los_Angeles").toString()
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
         );
 
         List<Installment> resultInstallments = actual365Calculator.newInstallments(loanConfig);
@@ -204,6 +223,116 @@ public class Actual365CalculatorTest {
         }
     }
 
+    @Test
+    public void testUpdateInstallmentsBasicAccrual_1dayInterest() {
+        LocalDate startDate =
+                LocalDate.of(2024, 01, 01);
+        List<Payment> payments = new ArrayList<>();
+        loanConfig = new Loan(
+                "loanId",
+                6,
+                originatedPrincipalAmount,
+                CurrencyUnit.USD.toString(),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.10"),
+                startDate,
+                "IN_PROGRESS",
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                payments,
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
+        );
+        Loan updatedLoan = actual365Calculator.updateInstallments(loanConfig, startDate.plusDays(1));
+        System.out.println();
+    }
+
+    @Test
+    public void testUpdateInstallmentsAccrues_1Day_FilterByCalculationDate() {
+
+    }
+
+    /*
+     * Tests
+     * - Accrue 1 day of interest and calculationDate filters out relevant payments
+     * - Pay down accrued interest for 1 on-time payment. Check Loan.accruedInterest == 0
+     */
+    @Test
+    public void testUpdateInstallmentsBasicAccrual_1OnTimePayment() {
+        LocalDate startDate =
+                LocalDate.of(2024, 01, 01);
+        List<Payment> payments = new ArrayList<>();
+        payments.add(
+                new Payment(
+                        UUID.randomUUID().toString(),
+                        new BigDecimal("171.56"),
+                        startDate.plusMonths(1).atStartOfDay(ZoneId.of("UTC")),
+                        PaymentType.PAYMENT,
+                        new ArrayList<>())
+        );
+        loanConfig = new Loan(
+                "loanId",
+                6,
+                originatedPrincipalAmount,
+                CurrencyUnit.USD.toString(),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.10"),
+                startDate,
+                "IN_PROGRESS",
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                payments,
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
+        );
+        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusDays(1));
+        // Accrues 1 day of interest, payment shouldn't apply
+        assert updatedLoanOneDayAfter.accruedInterest().compareTo(new BigDecimal("0.27")) == 0;
+
+        updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(1));
+
+        // After the payment, the accruedInterest should be 0
+        assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
+        assert updatedLoanOneDayAfter.installments().stream().filter(
+                i -> i.status().equals(PAID)).count() == 1;
+    }
+
+    @Test
+    public void testUpdateInstallmentsBasicAccrual_1LatePayment() {
+        LocalDate startDate =
+                LocalDate.of(2024, 01, 01);
+        ZonedDateTime paymentDate = startDate.plusMonths(1).plusDays(1)
+                .atStartOfDay(ZoneId.of("UTC"));
+        List<Payment> payments = new ArrayList<>();
+        payments.add(
+                new Payment(
+                        UUID.randomUUID().toString(),
+                        new BigDecimal("171.56"),
+                        paymentDate,
+                        PaymentType.PAYMENT,
+                        new ArrayList<>())
+        );
+        loanConfig = new Loan(
+                "loanId",
+                6,
+                originatedPrincipalAmount,
+                CurrencyUnit.USD.toString(),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.10"),
+                startDate,
+                "IN_PROGRESS",
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                payments,
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
+        );
+        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate().plusDays(1));
+        System.out.println();
+        assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) > 0;
+        assert updatedLoanOneDayAfter.installments().stream().filter(
+                i -> i.status().equals(LATE)).count() == 1;
+    }
 
     private void assertPrincipalAmount(List<Installment> installments, BigDecimal amount) {
         BigDecimal countingSum = BigDecimal.ZERO;

@@ -46,6 +46,8 @@ public class PaymentResourceManager {
 
     // TODO: Handle off-cycle payments
     // TODO: do calculator integration for early, late payments
+    // TODO: Run updateInstallments.
+    // TODO: Compute outstandingPrincipal, check if it's == 0 then close the loan.
     // TODO: Pin to Loan's zone time (paymentDto)
     // TODO: Transactions
     public GetLoanResponse doMakePayment(String loanId, MakePaymentRequest makePaymentRequest) {
@@ -63,7 +65,6 @@ public class PaymentResourceManager {
         BigDecimal installmentAmount = firstUnpaidInstallment.interestAmount()
                 .add(firstUnpaidInstallment.principalAmount());
         validateMakePaymentRequestAmount(installmentAmount, makePaymentRequest.amount());
-
         String paymentId = UUID.randomUUID().toString();
         PaymentDto paymentDto = new PaymentDto(
                 paymentId,
@@ -72,6 +73,7 @@ public class PaymentResourceManager {
                 PaymentType.valueOf(makePaymentRequest.paymentType()),
                 ZonedDateTime.now()
         );
+
         paymentDao.insert(paymentDto);
         loanInstallmentDao.updateInstallmentForPayment(
                 new LoanInstallmentDto(
