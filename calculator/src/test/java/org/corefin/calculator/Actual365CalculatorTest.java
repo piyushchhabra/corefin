@@ -24,6 +24,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.corefin.model.common.InstallmentStatus.LATE;
 import static org.corefin.model.common.InstallmentStatus.PAID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -288,7 +289,7 @@ public class Actual365CalculatorTest {
         // Accrues 1 day of interest, payment shouldn't apply
         assert updatedLoanOneDayAfter.accruedInterest().compareTo(new BigDecimal("0.27")) == 0;
 
-        updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig,   startDate.plusMonths(1));
+        updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(1));
 
         // After the payment, the accruedInterest should be 0
         assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
@@ -326,13 +327,11 @@ public class Actual365CalculatorTest {
                 originatedPrincipalAmount,
                 BigDecimal.ZERO
         );
-        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate());
+        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate().plusDays(1));
         System.out.println();
-        // TODO: to fix, installment numterm 2 has the wrong interestAmount
-        // After the payment, the accruedInterest should be > 0, since there was extra interest accrued
-//        assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
-//        assert updatedLoanOneDayAfter.installments().stream().filter(
-//                i -> i.status().equals(PAID)).count() == 1;
+        assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) > 0;
+        assert updatedLoanOneDayAfter.installments().stream().filter(
+                i -> i.status().equals(LATE)).count() == 1;
     }
 
     private void assertPrincipalAmount(List<Installment> installments, BigDecimal amount) {
