@@ -24,6 +24,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.corefin.model.common.InstallmentStatus.EARLY;
 import static org.corefin.model.common.InstallmentStatus.LATE;
 import static org.corefin.model.common.InstallmentStatus.PAID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -330,6 +331,42 @@ public class Actual365CalculatorTest {
         assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) > 0;
         assert updatedLoanOneDayAfter.installments().stream().filter(
                 i -> i.status().equals(LATE)).count() == 1;
+    }
+
+    @Test
+    public void testUpdateInstallmentsBasicAccrual_1EarlyPayment() {
+        LocalDate startDate =
+                LocalDate.of(2024, 01, 01);
+        ZonedDateTime paymentDate = startDate.plusDays(10)
+                .atStartOfDay(ZoneId.of("UTC"));
+        List<Payment> payments = new ArrayList<>();
+        payments.add(
+                new Payment(
+                        UUID.randomUUID().toString(),
+                        new BigDecimal("171.56"),
+                        paymentDate,
+                        PaymentType.PAYMENT,
+                        new ArrayList<>())
+        );
+        loanConfig = new Loan(
+                "loanId",
+                6,
+                originatedPrincipalAmount,
+                CurrencyUnit.USD.toString(),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.10"),
+                startDate,
+                "IN_PROGRESS",
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                payments,
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
+        );
+        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate());
+        assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
+        assert updatedLoanOneDayAfter.installments().stream().filter(
+                i -> i.status().equals(EARLY)).count() == 1;
     }
 
     private void assertPrincipalAmount(List<Installment> installments, BigDecimal amount) {
