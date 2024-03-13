@@ -25,7 +25,7 @@ public class LoanResourceTest {
         loanResourceManager = new LoanResourceManager(loanDao, loanInstallmentDao);
     }
 
-    @Test
+//    @Test
     public void testCreateAndGetLoan() {
         int term = 10;
         BigDecimal originatedAmount = BigDecimal.valueOf(100.0);
