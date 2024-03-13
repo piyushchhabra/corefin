@@ -224,10 +224,18 @@ public class Actual365CalculatorTest {
     }
 
     @Test
-    public void testUpdateInstallmentsBasicAccrual_1dayInterest() {
+    public void testUpdateInstallmentsAccrues_1Day_FilterByCalculationDate() {
+        List<Payment> payments = new ArrayList<>();
         LocalDate startDate =
                 LocalDate.of(2024, 01, 01);
-        List<Payment> payments = new ArrayList<>();
+        payments.add(
+                new Payment(
+                        UUID.randomUUID().toString(),
+                        new BigDecimal("171.56"),
+                        startDate.plusMonths(1).atStartOfDay(ZoneId.of("UTC")),
+                        PaymentType.PAYMENT,
+                        new ArrayList<>())
+        );
         loanConfig = new Loan(
                 "loanId",
                 6,
@@ -243,18 +251,13 @@ public class Actual365CalculatorTest {
                 originatedPrincipalAmount,
                 BigDecimal.ZERO
         );
-        Loan updatedLoan = actual365Calculator.updateInstallments(loanConfig, startDate.plusDays(1));
-        System.out.println();
-    }
-
-    @Test
-    public void testUpdateInstallmentsAccrues_1Day_FilterByCalculationDate() {
-
+        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusDays(1));
+        // Accrues 1 day of interest, payment shouldn't apply
+        assert updatedLoanOneDayAfter.accruedInterest().compareTo(new BigDecimal("0.27")) == 0;
     }
 
     /*
      * Tests
-     * - Accrue 1 day of interest and calculationDate filters out relevant payments
      * - Pay down accrued interest for 1 on-time payment. Check Loan.accruedInterest == 0
      */
     @Test
@@ -285,11 +288,7 @@ public class Actual365CalculatorTest {
                 originatedPrincipalAmount,
                 BigDecimal.ZERO
         );
-        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusDays(1));
-        // Accrues 1 day of interest, payment shouldn't apply
-        assert updatedLoanOneDayAfter.accruedInterest().compareTo(new BigDecimal("0.27")) == 0;
-
-        updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(1));
+        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(1));
 
         // After the payment, the accruedInterest should be 0
         assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
@@ -328,7 +327,6 @@ public class Actual365CalculatorTest {
                 BigDecimal.ZERO
         );
         Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate().plusDays(1));
-        System.out.println();
         assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) > 0;
         assert updatedLoanOneDayAfter.installments().stream().filter(
                 i -> i.status().equals(LATE)).count() == 1;
