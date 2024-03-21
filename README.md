@@ -1,3 +1,4 @@
+
 <h1 align="center">
   <img style="vertical-align:middle" alt="image" width="400"
   src="./docs/imgs/logo.png">
@@ -29,6 +30,13 @@
 
 
 ## Getting started
+
+### Quick demo
+Here's a demo on creating a loan, making a payment, and seeing all installments.
+
+https://github.com/getcorefin/corefin/assets/3644245/673273d2-98f6-4d8e-a541-53ff7bbd43e6
+
+
 
 ### Prerequisites
 1. Make sure you have Docker installed on your machine.
@@ -105,7 +113,7 @@ curl --location 'http://localhost:8080/payments/$LOAN_ID/makePayment' \
 make db-shell
 
 # Execute the following SQL
-mysql> select loan_installment_id, num_term, principal_amount, interest_amount from loan_installment;
+mysql> select loan_installment_id, num_term, principal_amount, interest_amount from loan_installment where loan_id="132b124a-e247-11ee-bf07-0242ac140002";
 +--------------------------------------+----------+------------------+-----------------+
 | loan_installment_id                  | num_term | principal_amount | interest_amount |
 +--------------------------------------+----------+------------------+-----------------+
@@ -113,8 +121,6 @@ mysql> select loan_installment_id, num_term, principal_amount, interest_amount f
 | 132d3525-e247-11ee-bf07-0242ac140002 |        2 |           196.59 |          357.69 |
 | 132e2291-e247-11ee-bf07-0242ac140002 |        3 |           268.15 |          286.13 |
 | 132eab9b-e247-11ee-bf07-0242ac140002 |        4 |           405.64 |          166.70 |
-| 17ec7677-e247-11ee-bf07-0242ac140002 |        1 |           129.62 |          424.66 |
-| 17edbbf7-e247-11ee-bf07-0242ac140002 |        2 |           196.59 |          357.69 |
 ```
 
 ## Roadmap
