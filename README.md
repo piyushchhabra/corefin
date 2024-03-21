@@ -7,22 +7,25 @@
 </p>
 
 
-Corefin is a highly-scalable open-source loan management system that allows you to build and launch lending products. It uses the Actual/365 method for calculating interest. See information from the
+[Corefin](https://corefin.com) is a highly scalable open-source loan management system that allows you to build and launch lending products. It uses the Actual/365 method for calculating interest. See information from the
 [CFPB](https://www.consumerfinance.gov/rules-policy/regulations/1030/7/).
 
 <p align="center">
+   <a href="https://join.slack.com/t/corefin-community/shared_invite/zt-2emg4brbp-tXuIKP_fWLdOphBtVG~rcA"><img src="https://img.shields.io/badge/Corefin%20Slack%20Community-8A2BE2"></a>
    <a href="(https://github.com/getcorefin/corefin/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
    <a href="https://www.ycombinator.com"><img src="https://img.shields.io/badge/Backed%20by-Y%20Combinator-%23f26625"></a>
 </p>
 
 
+<!--
 <h4 align="center">
     <p>
         <a href="#prerequisites">Prerequisites</a> |
         <a href="#getting-started">Getting Started</a> |
-        <a href="#coming-soon">Coming Soon</a> |
+        <a href="#roadmap">Roadmap</a> |
     <p>
 </h4>
+-->
 
 
 ## Getting started
@@ -114,20 +117,25 @@ mysql> select loan_installment_id, num_term, principal_amount, interest_amount f
 | 17edbbf7-e247-11ee-bf07-0242ac140002 |        2 |           196.59 |          357.69 |
 ```
 
+## Roadmap
+Check out our [public roadmap](https://github.com/orgs/getcorefin/projects/1/views/4) for a more detailed view.
+
+At a high level, we're working on the following features next:
+- [ ]  Early/on-time/late payments
+- [ ]  Custom installment amount payments
+- [ ]  Support for other lending products such as MCAs
+- [ ]  Robust reporting API
+
+... and many more! 
+
+## Corefin community
+* Join our [Slack community](https://join.slack.com/t/corefin-community/shared_invite/zt-2emg4brbp-tXuIKP_fWLdOphBtVG~rcA) if you need help or want to chat
+* Contact us at hello@corefin.com
+* Follow us on [Twitter](https://twitter.com/GetCorefin) for the latest news
+
+
 ## Contributions and development environment
 Coming soon!
 
-# Coming soon!
-- Accepting on-time, early and late payments
-- Paid, hosted version
-- BaaS integration for 1-line loan originations
-- Management portal
-- Auditability and reporting features
-- Authentication
 
-# Roadmap
-1. Completing the open source core LMS software.
-2. Simplify your embedded finance stack by offering underwriting and hosting services
-3. Build out auditability and reporting features.
 
-Contact us at founders@corefin.org for more information.
