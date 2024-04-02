@@ -19,10 +19,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Service
 public class LoanResourceManager {
-
+    private static final Logger LOGGER = Logger.getLogger(PaymentResourceManager.class.getName());
     private Actuarial365Calculator calculator;
     private LoanDao loanDao;
     private LoanInstallmentDao loanInstallmentDao;
@@ -72,6 +73,8 @@ public class LoanResourceManager {
                         loanInstallmentDao.insert(loanInstallmentDto)
         );
         loanDao.insert(loanDto);
+        loanInstallmentDtos = loanInstallmentDao.findByLoanId(loanId);
+        LOGGER.info("Creating new Loan: %s\nInstallments: %s".formatted(loanDto, loanInstallmentDtos));
 
         return new GetLoanResponse(
                 LoanTransformer.transformToLoanInfo(
