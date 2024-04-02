@@ -16,6 +16,6 @@ public class Actuarial365Calculator implements CalculatorInterface {
 
     @Override
     public Loan updateInstallments(Loan loan, LocalDate calculationDate) {
-        return null;
+        return this.actual365Calculator.updateInstallments(loan, calculationDate);
     }
 }

@@ -1,8 +1,12 @@
 package org.corefin.dao;
 
+import org.corefin.calculator.model.Payment;
 import org.corefin.dao.mappers.PaymentMapper;
+import org.corefin.dto.LoanInstallmentDto;
 import org.corefin.dto.PaymentDto;
 import org.jdbi.v3.core.Jdbi;
+
+import java.util.List;
 
 public class PaymentDao implements BaseDao<PaymentDto> {
     private Jdbi jdbi;
@@ -53,5 +57,15 @@ public class PaymentDao implements BaseDao<PaymentDto> {
     @Override
     public void registerRowMapper() {
         jdbi.registerRowMapper(new PaymentMapper());
+    }
+
+    public List<PaymentDto> findByLoanId(String loanId) {
+        return jdbi.withHandle(
+                handle ->
+                    handle.createQuery("SELECT * FROM payment WHERE loan_id= :loan_id")
+                            .bind("loan_id", loanId)
+                            .mapTo(PaymentDto.class)
+                            .list()
+        );
     }
 }

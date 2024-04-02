@@ -1,12 +1,19 @@
 package com.corefin.server.v1;
 
 import com.corefin.server.exception.CorefinException;
+import com.corefin.server.transform.LoanInstallmentTransformer;
+import com.corefin.server.transform.LoanTransformer;
 import com.corefin.server.v1.request.MakePaymentRequest;
 import com.corefin.server.v1.response.GetLoanResponse;
+import org.corefin.calculator.Actual365CalculatorImpl;
 import org.corefin.calculator.Actuarial365Calculator;
+import org.corefin.calculator.model.Installment;
+import org.corefin.calculator.model.Loan;
+import org.corefin.calculator.model.Payment;
 import org.corefin.dao.LoanDao;
 import org.corefin.dao.LoanInstallmentDao;
 import org.corefin.dao.PaymentDao;
+import org.corefin.dto.LoanDto;
 import org.corefin.dto.LoanInstallmentDto;
 import org.corefin.dto.PaymentDto;
 import org.corefin.model.common.InstallmentStatus;
@@ -16,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,6 +59,15 @@ public class PaymentResourceManager {
     // TODO: Compute outstandingPrincipal, check if it's == 0 then close the loan.
     // TODO: Pin to Loan's zone time (paymentDto)
     // TODO: Transactions
+
+    /**
+     * Applies the payment and updates the state of the installments for the
+     * associated Loan.
+     *
+     * @param loanId
+     * @param makePaymentRequest
+     * @return
+     */
     public GetLoanResponse doMakePayment(String loanId, MakePaymentRequest makePaymentRequest) {
         validateMakePaymentRequest(loanId);
         List<LoanInstallmentDto> loanInstallmentDtoList = loanInstallmentDao.findByLoanId(loanId);
@@ -71,23 +89,45 @@ public class PaymentResourceManager {
                 loanId,
                 makePaymentRequest.amount(),
                 PaymentType.valueOf(makePaymentRequest.paymentType()),
-                ZonedDateTime.now()
+                makePaymentRequest.paymentDateTime()
         );
 
         paymentDao.insert(paymentDto);
-        loanInstallmentDao.updateInstallmentForPayment(
-                new LoanInstallmentDto(
-                        firstUnpaidInstallment.installmentId(),
-                        InstallmentStatus.PAID,
-                        firstUnpaidInstallment.loanId(),
-                        firstUnpaidInstallment.numTerm(),
-                        firstUnpaidInstallment.principalAmount(),
-                        firstUnpaidInstallment.interestAmount(),
-                        firstUnpaidInstallment.startDate(),
-                        firstUnpaidInstallment.dueDate(),
-                        firstUnpaidInstallment.endDate()
-                )
-        );
+
+        // Convert LoanDao to Loan
+        LoanDto loanDto = loanDao.findById(loanId);
+        List<PaymentDto> paymentDtos = paymentDao.findByLoanId(loanId);
+        Loan loan = LoanTransformer.transform(loanDto, paymentDtos);
+
+        // Call the calculator's updateInstallments with Loan, calculation date = now()
+        Loan updatedLoan = calculator.updateInstallments(loan, LocalDate.now());
+        List<Installment> installments = updatedLoan.installments();
+
+        // For each installment in the updated loan, update the associated LoanInstallment
+        ArrayList<LoanInstallmentDto> updatedLoanInstallmentDtos = new ArrayList<>();
+
+        // Reconcile the loanInstallmentDtoList with calculator's installments
+        for (int i = 0; i < loanInstallmentDtoList.size(); i++) {
+            LoanInstallmentDto originalLoanInstallmentDto = loanInstallmentDtoList.get(i);
+            Installment updatedInstallment = installments.get(i);
+            updatedLoanInstallmentDtos.add(
+                    new LoanInstallmentDto(
+                            originalLoanInstallmentDto.installmentId(),
+                            updatedInstallment.status(),
+                            loanId,
+                            updatedInstallment.numTerm(),
+                            updatedInstallment.principalAmount(),
+                            updatedInstallment.interestAmount(),
+                            originalLoanInstallmentDto.startDate(),
+                            originalLoanInstallmentDto.dueDate(),
+                            originalLoanInstallmentDto.endDate()
+                    )
+            );
+        }
+
+        updatedLoanInstallmentDtos.forEach(loanInstallmentDto -> {
+            loanInstallmentDao.updateInstallmentForPayment(loanInstallmentDto);
+        });
 
         return loanResourceManager.doGetLoan(loanId);
     }
