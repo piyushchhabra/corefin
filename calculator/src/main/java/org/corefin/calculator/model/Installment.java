@@ -6,6 +6,7 @@ import org.corefin.model.common.InstallmentStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Optional;
 
 
 public record Installment(
@@ -21,7 +22,8 @@ public record Installment(
 ) {
     public Installment withUpdates(BigDecimal principalAmount,
                                    BigDecimal interestAmount,
-                                   InstallmentStatus status) {
+                                   InstallmentStatus status,
+                                   Optional<LocalDate> endDateOptional) {
         return new Installment(
                 installmentId(),
                 loanId(),
@@ -30,7 +32,7 @@ public record Installment(
                 interestAmount,
                 startDate(),
                 dueDate(),
-                endDate(),
+                endDateOptional.orElseGet(this::endDate),
                 status
         );
     }

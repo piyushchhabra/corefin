@@ -93,7 +93,7 @@ public class LoanInstallmentDao implements BaseDao<LoanInstallmentDto> {
                             .bind("principal_amount", loanInstallmentDto.principalAmount())
                             .bind("interest_amount", loanInstallmentDto.interestAmount())
                             .bind("status", loanInstallmentDto.status().toString())
-                            .bind("end_date", ZonedDateTime.now().toLocalDate())
+                            .bind("end_date", loanInstallmentDto.endDate())
                             .execute();
                 }
         );

@@ -126,7 +126,6 @@ public class Actual365CalculatorTest {
         assertEquals(expectedEmi, actual365Calculator.getEquatedMonthlyInstallment(loanConfig));
     }
 
-
     private static Stream<Arguments> newInstallmentTestGenerator() {
         return Stream.of(
                 // Originated principal
@@ -148,8 +147,8 @@ public class Actual365CalculatorTest {
                                         ),
                                         new Installment(
                                                 "", "", 2,
-                                                new BigDecimal("164.68"),
-                                                new BigDecimal("6.88"),
+                                                new BigDecimal("165.14"),
+                                                new BigDecimal("6.42"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         ),
@@ -176,8 +175,8 @@ public class Actual365CalculatorTest {
                                         ),
                                         new Installment(
                                                 "", "", 6,
-                                                new BigDecimal("170.32"),
-                                                new BigDecimal("1.45"),
+                                                new BigDecimal("170.11"),
+                                                new BigDecimal("1.40"),
                                                 LocalDate.now(), LocalDate.now(), LocalDate.now(), // unused
                                                 InstallmentStatus.OWED
                                         )
@@ -199,7 +198,7 @@ public class Actual365CalculatorTest {
                 CurrencyUnit.USD.toString(),
                 targetAPR,
                 targetAPR,
-                LocalDate.of(2024, 03, 06),
+                LocalDate.of(2023, 01, 01),
                 "IN_PROGRESS",
                 TimeZone.getTimeZone("America/Los_Angeles").toString(),
                 new ArrayList<>(),
@@ -228,7 +227,7 @@ public class Actual365CalculatorTest {
     public void testUpdateInstallmentsAccrues_1Day_FilterByCalculationDate() {
         List<Payment> payments = new ArrayList<>();
         LocalDate startDate =
-                LocalDate.of(2024, 01, 01);
+                LocalDate.of(2023, 01, 01);
         payments.add(
                 new Payment(
                         UUID.randomUUID().toString(),
@@ -264,7 +263,7 @@ public class Actual365CalculatorTest {
     @Test
     public void testUpdateInstallmentsBasicAccrual_1OnTimePayment() {
         LocalDate startDate =
-                LocalDate.of(2024, 01, 01);
+                LocalDate.of(2023, 01, 01);
         List<Payment> payments = new ArrayList<>();
         payments.add(
                 new Payment(
@@ -289,12 +288,76 @@ public class Actual365CalculatorTest {
                 originatedPrincipalAmount,
                 BigDecimal.ZERO
         );
-        Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(1));
+        Loan updatedLoanOneMonthAfter = actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(1));
 
         // After the payment, the accruedInterest should be 0
-        assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
-        assert updatedLoanOneDayAfter.installments().stream().filter(
+        assert updatedLoanOneMonthAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
+        assert updatedLoanOneMonthAfter.installments().stream().filter(
                 i -> i.status().equals(PAID)).count() == 1;
+    }
+
+    /*
+     * Tests
+     * - Pay down accrued interest for full on-time payments. Check Loan.accruedInterest == 0
+     */
+    @Test
+    public void testUpdateInstallmentsBasicAccrual_FullOnTimePayments() {
+        LocalDate startDate =
+                LocalDate.of(2023, 01, 01);
+        List<Payment> payments = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            payments.add(
+                    new Payment(
+                            UUID.randomUUID().toString(),
+                            new BigDecimal("171.56"),
+                            startDate.plusMonths(i+1).atStartOfDay(ZoneId.of("UTC")),
+                            PaymentType.PAYMENT,
+                            new ArrayList<>())
+            );
+        }
+        payments.add(
+                new Payment(
+                        UUID.randomUUID().toString(),
+                        new BigDecimal("171.26"),
+                        startDate.plusMonths(6).atStartOfDay(ZoneId.of("UTC")),
+                        PaymentType.PAYMENT,
+                        new ArrayList<>())
+        );
+
+
+        loanConfig = new Loan(
+                "loanId",
+                6,
+                originatedPrincipalAmount,
+                CurrencyUnit.USD.toString(),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.10"),
+                startDate,
+                "IN_PROGRESS",
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                payments,
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
+        );
+        Loan updatedLoanAfterAllInstallments =
+                actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(6));
+
+        // After all payments, the accruedInterest should be 0
+        assert updatedLoanAfterAllInstallments.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
+        assert updatedLoanAfterAllInstallments.installments().stream().filter(
+                i -> i.status().equals(PAID)).count() == 6;
+
+        List<Installment> expectedInstallments =
+                actual365Calculator.getActual365AmortizationSchedule(loanConfig);
+
+        assertEquals(expectedInstallments.size(), updatedLoanAfterAllInstallments.installments().size());
+        for (int i = 0; i < expectedInstallments.size(); i++) {
+            Installment expectedInstallment = expectedInstallments.get(i);
+            Installment updatedInstallment = updatedLoanAfterAllInstallments.installments().get(i);
+            assertEquals(expectedInstallment.interestAmount(), updatedInstallment.interestAmount());
+            assertEquals(expectedInstallment.principalAmount(), updatedInstallment.principalAmount());
+        }
     }
 
     @Test

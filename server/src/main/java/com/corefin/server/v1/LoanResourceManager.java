@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 @Service
 public class LoanResourceManager {
-    private static final Logger LOGGER = Logger.getLogger(PaymentResourceManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LoanResourceManager.class.getName());
     private Actuarial365Calculator calculator;
     private LoanDao loanDao;
     private LoanInstallmentDao loanInstallmentDao;

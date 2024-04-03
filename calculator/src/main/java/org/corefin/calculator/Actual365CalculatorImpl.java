@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 //         r = 0.15 / 12 = 0.0125
 //      ** P = principal amount
 //      ** n = number of compounding periods over the lifetime of the loan,
-//         For example, a 30-year loan paid monthly would have a n value of
+//         For example, a 30-year loan paid monthly would have an n value of
 //         n = 30 * 12 = 360
 public class Actual365CalculatorImpl {
     private static final Logger LOGGER = Logger.getLogger(Actual365CalculatorImpl.class.getName());
@@ -69,7 +69,7 @@ public class Actual365CalculatorImpl {
         for (int i = 0; i < loan.term(); i++) {
             // Note: between is [startDate inclusive, dueDate exclusive)
             // For example: 1/1 -> 1/31, 2/1 -> 2/28
-            // And so the correct numnber of days to calculate nterest
+            // And so the correct number of days to calculate interest
             // accrues from 1/1 -> 1/31 (31 days).
             long numDays = ChronoUnit.DAYS.between(startDate, dueDate);
             BigDecimal interestAmount = dailyRate.multiply(BigDecimal.valueOf(numDays))
@@ -124,11 +124,11 @@ public class Actual365CalculatorImpl {
         List<Installment> installments = newInstallments(loan);
         PriorityQueue<Installment> installmentQueue = new PriorityQueue<>(Comparator.comparing(Installment::dueDate));
         PriorityQueue<Payment> paymentQueue = new PriorityQueue<>(Comparator.comparing(Payment::paymentDateTime));
-        installments.forEach(installment -> installmentQueue.add(installment));
+        installmentQueue.addAll(installments);
         loan.payments().stream()
                 .filter(payment -> payment.paymentDateTime().toLocalDate().isBefore(calculationDate) ||
                         payment.paymentDateTime().toLocalDate().isEqual(calculationDate))
-                .forEach(payment -> paymentQueue.add(payment));
+                .forEach(paymentQueue::add);
 
         List<Payment> payments = new ArrayList<>();
 
@@ -172,12 +172,12 @@ public class Actual365CalculatorImpl {
         boolean estimateInstallmentInterestSeparately = false;
         if (inputCalculationDate.isAfter(installment.dueDate()) ||
                 inputCalculationDate.isEqual(installment.dueDate())) {
-            dateToAccrueTo = installment.dueDate();
             shouldAccrue = true;
         }
-        // Calculation Date is in between installment start/end. So
-        // loan accrues interest but we still need to do the full estimation
-        else if (inputCalculationDate.isAfter(installment.startDate()) && inputCalculationDate.isBefore(installment.endDate())) {
+        // Calculation Date is in between installment start/end. So the
+        // loan accrues interest, but we still need to do the full estimation.
+        else if (inputCalculationDate.isAfter(installment.startDate()) &&
+                inputCalculationDate.isBefore(installment.endDate())) {
             dateToAccrueTo = inputCalculationDate;
             shouldAccrue = true;
             estimateInstallmentInterestSeparately = true;
@@ -187,9 +187,7 @@ public class Actual365CalculatorImpl {
         }
         // Installment estimated interest is based on outstandingPrincipal. so it's not effected by accrued interest
         // AccruedInterest is directly affected by the inputCalculation date
-        BigDecimal dailyRate = runningBalance.getTargetAPR().divide(new BigDecimal(365),
-                10,
-                RoundingMode.HALF_UP);
+        BigDecimal dailyRate = runningBalance.getDailyRate();
         long numDays = ChronoUnit.DAYS.between(runningBalance.currentCalculationDate, dateToAccrueTo);
         BigDecimal installmentAmount = installment.interestAmount().add(installment.principalAmount());
         BigDecimal accruedInterest = dailyRate.multiply(BigDecimal.valueOf(numDays))
@@ -199,6 +197,7 @@ public class Actual365CalculatorImpl {
         if (shouldAccrue) {
             runningBalance.setAccruedInterest(runningBalance.getAccruedInterest().add(accruedInterest));
         }
+
         // For the scenario, where the calculationDate is within the installment bounds,
         // We need to accrue to RunningBalance AND estimate the InstallmentAmounts separately.
         if (estimateInstallmentInterestSeparately) {
@@ -227,11 +226,6 @@ public class Actual365CalculatorImpl {
 
         runningBalance.setCurrentCalculationDate(installment.dueDate());
         runningBalance.setOutstandingPrincipal(runningBalance.getOutstandingPrincipal().subtract(principalAmount));
-
-
-
-
-
 
         // Prior
         // Early
@@ -269,9 +263,7 @@ public class Actual365CalculatorImpl {
             // else
             long numDays = ChronoUnit.DAYS.between(runningBalance.currentCalculationDate, p.paymentDateTime());
             // TODO: Math.min(InstallmentAmount, updatedInterestAmount)
-            BigDecimal dailyRate = runningBalance.getTargetAPR().divide(new BigDecimal(365),
-                    10,
-                    RoundingMode.HALF_UP);
+            BigDecimal dailyRate = runningBalance.getDailyRate();
             BigDecimal accruedInterestAmountSinceLastCalculation = dailyRate.multiply(BigDecimal.valueOf(numDays))
                     .multiply(runningBalance.outstandingPrincipal)
                     .setScale(2, RoundingMode.HALF_UP);
@@ -294,12 +286,12 @@ public class Actual365CalculatorImpl {
                     BigDecimal unpaidInstallmentAmount = firstUnpaidInstallment.interestAmount()
                             .add(firstUnpaidInstallment.principalAmount());
                     if (p.amount().compareTo(unpaidInstallmentAmount) != 0) {
-                        LOGGER.severe("Payment amount and installment amounts don't match. Payment amount: [%s], " +
-                                "Installment amount: [%s]".formatted(p.amount(), unpaidInstallmentAmount));
+                        LOGGER.severe(("Payment amount and installment amounts don't match. Payment amount: [%s] " +
+                                "Installment amount: [%s]").formatted(p.amount(), unpaidInstallmentAmount));
                         throw new RuntimeException("Corefin doesn't support custom payment amounts");
                     }
                     // if it matches, then...
-                    // First find if this is early, late, or ontime
+                    // First find if this is early, late, or on-time
                     // if it's late, it's directly the amortization schedule (since locked)
                     // if it's early, then recompute
                     // if it's on-time, then it's also directly amortization schedule
@@ -318,12 +310,10 @@ public class Actual365CalculatorImpl {
                     BigDecimal updatedInterestAmount = firstUnpaidInstallment.interestAmount();
                     // even if late, need to calculate, since there's extra days
 //                    if (paymentStatus.equals(PaymentStatus.EARLY)) {
-                        // recompute the principalAmount, interestamount
+                        // recompute the principalAmount, interest amount
 //                    long numDays = ChronoUnit.DAYS.between(runningBalance.currentCalculationDate, p.paymentDateTime());
 //                    // TODO: Math.min(InstallmentAmount, updatedInterestAmount)
-//                    BigDecimal dailyRate = runningBalance.getTargetAPR().divide(new BigDecimal(365),
-//                            10,
-//                            RoundingMode.HALF_UP);
+//                    BigDecimal dailyRate = runningBalance.getDailyRate();
                     updatedInterestAmount = dailyRate.multiply(BigDecimal.valueOf(numDays))
                             .multiply(runningBalance.outstandingPrincipal)
                             .setScale(2, RoundingMode.HALF_UP);
@@ -335,7 +325,8 @@ public class Actual365CalculatorImpl {
                             // P and I are the same as the amortization schedule for late/on-time
                             updatedPrincipalAmount,
                             updatedInterestAmount,
-                            installmentStatus
+                            installmentStatus,
+                            Optional.of(p.paymentDateTime().toLocalDate())
                     );
                     installments.set(installmentIndex, updatedInstallment);
 
@@ -343,11 +334,8 @@ public class Actual365CalculatorImpl {
                     runningBalance.setAccruedInterest(runningBalance.getAccruedInterest().subtract(updatedInterestAmount));
                     runningBalance.setCurrentCalculationDate(p.paymentDateTime().toLocalDate());
                 }
-
             }
-
         }
-
     }
 
     private PaymentStatus getPaymentStatus(LocalDate paymentDate, LocalDate installmentDueDate) {
@@ -375,18 +363,12 @@ public class Actual365CalculatorImpl {
 
     // RunningBalance is the internal data structure we will use to
     // maintain the state of the calculations
-    private class RunningBalance {
-        @Getter
-        @Setter
+    @Setter
+    @Getter
+    private static class RunningBalance {
         BigDecimal outstandingPrincipal;
-        @Getter
-        @Setter
         BigDecimal accruedInterest;
-        @Getter
-        @Setter
         BigDecimal targetAPR;
-        @Getter
-        @Setter
         LocalDate currentCalculationDate;
         public RunningBalance(
                 BigDecimal outstandingPrincipal,
@@ -398,6 +380,12 @@ public class Actual365CalculatorImpl {
             this.accruedInterest = accruedInterest;
             this.targetAPR = targetAPR;
             this.currentCalculationDate = currentCalculationDate;
+        }
+
+        public BigDecimal getDailyRate() {
+            return targetAPR.divide(new BigDecimal(365),
+                    10,
+                    RoundingMode.HALF_UP);
         }
 
 

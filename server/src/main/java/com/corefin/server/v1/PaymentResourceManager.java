@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 
 @Service
 public class PaymentResourceManager {
-
     private static final Logger LOGGER = Logger.getLogger(PaymentResourceManager.class.getName());
     private Actuarial365Calculator calculator;
     private LoanDao loanDao;
@@ -59,7 +58,6 @@ public class PaymentResourceManager {
     // TODO: Compute outstandingPrincipal, check if it's == 0 then close the loan.
     // TODO: Pin to Loan's zone time (paymentDto)
     // TODO: Transactions
-
     /**
      * Applies the payment and updates the state of the installments for the
      * associated Loan.
@@ -69,6 +67,7 @@ public class PaymentResourceManager {
      * @return
      */
     public GetLoanResponse doMakePayment(String loanId, MakePaymentRequest makePaymentRequest) {
+        LOGGER.info("Making payment to loanId %s with %s".formatted(loanId, makePaymentRequest));
         validateMakePaymentRequest(loanId);
         List<LoanInstallmentDto> loanInstallmentDtoList = loanInstallmentDao.findByLoanId(loanId);
         Optional<LoanInstallmentDto> firstUnpaidInstallmentOptional =
@@ -79,10 +78,10 @@ public class PaymentResourceManager {
             throw new CorefinException("No unpaid installments");
         }
         LoanInstallmentDto firstUnpaidInstallment = firstUnpaidInstallmentOptional.get();
-        validateMakePaymentRequestDate(makePaymentRequest, firstUnpaidInstallment);
+        //validateMakePaymentRequestDate(makePaymentRequest, firstUnpaidInstallment);
         BigDecimal installmentAmount = firstUnpaidInstallment.interestAmount()
                 .add(firstUnpaidInstallment.principalAmount());
-        validateMakePaymentRequestAmount(installmentAmount, makePaymentRequest.amount());
+        //validateMakePaymentRequestAmount(installmentAmount, makePaymentRequest.amount());
         String paymentId = UUID.randomUUID().toString();
         PaymentDto paymentDto = new PaymentDto(
                 paymentId,
@@ -102,6 +101,7 @@ public class PaymentResourceManager {
         // Call the calculator's updateInstallments with Loan, calculation date = now()
         Loan updatedLoan = calculator.updateInstallments(loan, LocalDate.now());
         List<Installment> installments = updatedLoan.installments();
+        LOGGER.info("Generated updated installments %s".formatted(installments));
 
         // For each installment in the updated loan, update the associated LoanInstallment
         ArrayList<LoanInstallmentDto> updatedLoanInstallmentDtos = new ArrayList<>();
