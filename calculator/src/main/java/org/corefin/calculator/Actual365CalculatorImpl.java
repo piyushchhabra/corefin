@@ -163,24 +163,25 @@ public class Actual365CalculatorImpl {
 
         // Get the latest installments update if there was a payment involved
         installment = installments.get(installment.numTerm() - 1);
+        if (installment.isLocked(installment.status())) {
+            return;
+        }
 
         LocalDate dateToAccrueTo = installment.dueDate();
 
-        boolean shouldAccrue = false;
 //        if (inputCalculationDate.isBefore(installment.startDate())) {
 //            // do something
 //        }
         boolean estimateInstallmentInterestSeparately = false;
         if (inputCalculationDate.isAfter(installment.dueDate()) ||
                 inputCalculationDate.isEqual(installment.dueDate())) {
-            shouldAccrue = true;
+            dateToAccrueTo = installment.dueDate();
         }
         // Calculation Date is in between installment start/end. So the
         // loan accrues interest, but we still need to do the full estimation.
         else if (inputCalculationDate.isAfter(installment.startDate()) &&
                 inputCalculationDate.isBefore(installment.endDate())) {
             dateToAccrueTo = inputCalculationDate;
-            shouldAccrue = true;
             estimateInstallmentInterestSeparately = true;
         }
         if (runningBalance.currentCalculationDate.isAfter(dateToAccrueTo)) {
@@ -198,10 +199,6 @@ public class Actual365CalculatorImpl {
         BigDecimal principalAmount = installmentAmount.subtract(accruedInterest).min(
                 runningBalance.outstandingPrincipal
         );
-        if (shouldAccrue) {
-            runningBalance.setAccruedInterest(runningBalance.getAccruedInterest().add(accruedInterest));
-        }
-
         // For the scenario, where the calculationDate is within the installment bounds,
         // We need to accrue to RunningBalance AND estimate the InstallmentAmounts separately.
         if (estimateInstallmentInterestSeparately) {
@@ -213,12 +210,15 @@ public class Actual365CalculatorImpl {
             principalAmount = installmentAmount.subtract(accruedInterest);
         }
 
+        // Use the higher value of accrued interest to display the next estimated interest value.
+        // do this, in case there were early payments and we need to propagate and show the higher interest values.
+//        accruedInterest = accruedInterest.max(runningBalance.accruedInterest);
+
         if (!installment.isLocked(installment.status())) {
             Installment updatedInstallmentEstimate = new Installment(
                     installment.installmentId(),
                     installment.loanId(),
                     installment.numTerm(),
-                    // TODO: Check that principalAmount, accruedInterest variables are correct.
                     principalAmount,
                     accruedInterest,
                     installment.startDate(),
@@ -227,10 +227,10 @@ public class Actual365CalculatorImpl {
                     installment.status());
             // Update the global installments list
             installments.set(installment.numTerm() - 1, updatedInstallmentEstimate);
-            // TODO: do we need to update interest here too?
             runningBalance.setOutstandingPrincipal(runningBalance.getOutstandingPrincipal().subtract(principalAmount));
         }
 
+        runningBalance.setAccruedInterest(runningBalance.getAccruedInterest().add(accruedInterest));
         runningBalance.setCurrentCalculationDate(installment.dueDate());
 
         // Prior

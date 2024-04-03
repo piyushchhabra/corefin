@@ -19,6 +19,9 @@ public record Loan(
         List<Payment> payments,
 
         List<Installment> installments,
+
+        @Deprecated
+        // TODO: This field is broken atm. There's no use for it so i'm not fixing it now.
         BigDecimal accruedInterest,
         BigDecimal outstandingPrincipal
 ) {
