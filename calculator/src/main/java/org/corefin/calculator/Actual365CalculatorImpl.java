@@ -133,6 +133,7 @@ public class Actual365CalculatorImpl {
         List<Payment> payments = new ArrayList<>();
 
         while (!installmentQueue.isEmpty()) {
+
             Installment installment = installmentQueue.poll();
 
             processPaymentEventsByCutoffDate(runningBalance, calculationDate, paymentQueue, installments, payments);
@@ -193,7 +194,10 @@ public class Actual365CalculatorImpl {
         BigDecimal accruedInterest = dailyRate.multiply(BigDecimal.valueOf(numDays))
                 .multiply(runningBalance.outstandingPrincipal)
                 .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal principalAmount = installmentAmount.subtract(accruedInterest);
+        // We use min() here, in case outstanding principal is less than the existing value.
+        BigDecimal principalAmount = installmentAmount.subtract(accruedInterest).min(
+                runningBalance.outstandingPrincipal
+        );
         if (shouldAccrue) {
             runningBalance.setAccruedInterest(runningBalance.getAccruedInterest().add(accruedInterest));
         }
@@ -214,6 +218,7 @@ public class Actual365CalculatorImpl {
                     installment.installmentId(),
                     installment.loanId(),
                     installment.numTerm(),
+                    // TODO: Check that principalAmount, accruedInterest variables are correct.
                     principalAmount,
                     accruedInterest,
                     installment.startDate(),
@@ -222,10 +227,11 @@ public class Actual365CalculatorImpl {
                     installment.status());
             // Update the global installments list
             installments.set(installment.numTerm() - 1, updatedInstallmentEstimate);
+            // TODO: do we need to update interest here too?
+            runningBalance.setOutstandingPrincipal(runningBalance.getOutstandingPrincipal().subtract(principalAmount));
         }
 
         runningBalance.setCurrentCalculationDate(installment.dueDate());
-        runningBalance.setOutstandingPrincipal(runningBalance.getOutstandingPrincipal().subtract(principalAmount));
 
         // Prior
         // Early
@@ -306,6 +312,7 @@ public class Actual365CalculatorImpl {
                         installmentStatus = InstallmentStatus.LATE;
                     }
                     int installmentIndex = firstUnpaidInstallment.numTerm() - 1;
+
                     BigDecimal updatedPrincipalAmount = firstUnpaidInstallment.principalAmount();
                     BigDecimal updatedInterestAmount = firstUnpaidInstallment.interestAmount();
                     // even if late, need to calculate, since there's extra days
@@ -321,6 +328,7 @@ public class Actual365CalculatorImpl {
                             .subtract(updatedInterestAmount);
 
 //                    }
+                    // TODO: Check that this value matches the initial amortization schedule.
                     Installment updatedInstallment = firstUnpaidInstallment.withUpdates(
                             // P and I are the same as the amortization schedule for late/on-time
                             updatedPrincipalAmount,
