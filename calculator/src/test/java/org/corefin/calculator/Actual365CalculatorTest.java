@@ -33,9 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class Actual365CalculatorTest {
     private Actual365CalculatorImpl actual365Calculator;
     private Loan loanConfig;
-
     private BigDecimal originatedPrincipalAmount = new BigDecimal("1000.00");
 
+    /**
+     * Sets up the test fixture.
+     * (Called before every test case method.)
+     */
     @BeforeEach
     public void init() {
         actual365Calculator = new Actual365CalculatorImpl();
@@ -56,6 +59,11 @@ public class Actual365CalculatorTest {
         );
     }
 
+    /**
+     * Tests the installment schedule generation functionality of the Actual/365 Calculator.
+     * Given a 0% target interest rate, the calculator should return equal installments
+     * without interest.
+     */
     @Test
     public void testZeroInterestEqualMonthlyInstallment() {
         loanConfig = new Loan(
@@ -73,9 +81,16 @@ public class Actual365CalculatorTest {
                 originatedPrincipalAmount,
                 BigDecimal.ZERO
         );
+
         List<Installment> installments = actual365Calculator.newInstallments(loanConfig);
-        assertPrincipalAmount(installments, originatedPrincipalAmount);
+        BigDecimal countingSum = BigDecimal.ZERO;
+        for (Installment i : installments) {
+            countingSum = countingSum.add(i.principalAmount());
+        }
+
+        assert countingSum.equals(originatedPrincipalAmount);
     }
+
 //    BigDecimal originatedPrincipalAmount,
 //    BigDecimal targetAPR,
 //    int term,
@@ -256,9 +271,9 @@ public class Actual365CalculatorTest {
         assert updatedLoanOneDayAfter.accruedInterest().compareTo(new BigDecimal("0.27")) == 0;
     }
 
-    /*
-     * Tests
-     * - Pay down accrued interest for 1 on-time payment. Check Loan.accruedInterest == 0
+    /**
+     * Tests the installment updating functionality of the Actual/365 Calculator
+     * for 1 on-time payment.
      */
     @Test
     public void testUpdateInstallmentsBasicAccrual_1OnTimePayment() {
@@ -296,15 +311,16 @@ public class Actual365CalculatorTest {
                 i -> i.status().equals(PAID)).count() == 1;
     }
 
-    /*
-     * Tests
-     * - Pay down accrued interest for full on-time payments. Check Loan.accruedInterest == 0
+    /**
+     * Tests the installment updating functionality of the Actual/365 Calculator
+     * for full on-time payments.
      */
     @Test
     public void testUpdateInstallmentsBasicAccrual_FullOnTimePayments() {
         LocalDate startDate =
-                LocalDate.of(2023, 01, 01);
+                LocalDate.of(2023, 1, 1);
         List<Payment> payments = new ArrayList<>();
+        // Create 6 full on-time payments
         for (int i = 0; i < 5; i++) {
             payments.add(
                     new Payment(
@@ -323,7 +339,6 @@ public class Actual365CalculatorTest {
                         PaymentType.PAYMENT,
                         new ArrayList<>())
         );
-
 
         loanConfig = new Loan(
                 "loanId",
@@ -351,6 +366,7 @@ public class Actual365CalculatorTest {
         List<Installment> expectedInstallments =
                 actual365Calculator.getActual365AmortizationSchedule(loanConfig);
 
+        // The amortization schedule should not be the same after full on-time payments are applied
         assertEquals(expectedInstallments.size(), updatedLoanAfterAllInstallments.installments().size());
         for (int i = 0; i < expectedInstallments.size(); i++) {
             Installment expectedInstallment = expectedInstallments.get(i);
@@ -399,7 +415,7 @@ public class Actual365CalculatorTest {
     @Test
     public void testUpdateInstallmentsBasicAccrual_1EarlyPayment() {
         LocalDate startDate =
-                LocalDate.of(2024, 01, 01);
+                LocalDate.of(2023, 1, 1);
         ZonedDateTime paymentDate = startDate.plusDays(10)
                 .atStartOfDay(ZoneId.of("UTC"));
         List<Payment> payments = new ArrayList<>();
@@ -432,11 +448,50 @@ public class Actual365CalculatorTest {
                 i -> i.status().equals(EARLY)).count() == 1;
     }
 
-    private void assertPrincipalAmount(List<Installment> installments, BigDecimal amount) {
-        BigDecimal countingSum = BigDecimal.ZERO;
-        for (Installment i : installments) {
-            countingSum = countingSum.add(i.principalAmount());
-        }
-        assert countingSum.equals(amount);
+    /**
+     * Tests the installment updating functionality of the Actual/365 Calculator
+     * after one late full payment for the first installment.
+     */
+    @Test
+    public void testUpdateInstallmentsBasicAccrual_1LateFullInstallmentPayment() {
+        LocalDate startDate =
+                LocalDate.of(2023, 1, 1);
+
+        // Create a payment for the first installment that's late by 27 days
+        ZonedDateTime paymentDate =
+                startDate.atStartOfDay(ZoneId.of("UTC")).plusMonths(1).plusDays(28);
+        List<Payment> payments = new ArrayList<>();
+        payments.add(
+                new Payment(
+                        UUID.randomUUID().toString(),
+                        new BigDecimal("171.56"),
+                        paymentDate,
+                        PaymentType.PAYMENT,
+                        new ArrayList<>())
+        );
+
+        loanConfig = new Loan(
+                "loanId",
+                6,
+                originatedPrincipalAmount,
+                CurrencyUnit.USD.toString(),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.10"),
+                startDate,
+                "IN_PROGRESS",
+                TimeZone.getTimeZone("America/Los_Angeles").toString(),
+                payments,
+                new ArrayList<>(),
+                originatedPrincipalAmount,
+                BigDecimal.ZERO
+        );
+        List<Installment> schedule = actual365Calculator.getActual365AmortizationSchedule(loanConfig);
+
+        Loan updatedLoan = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate());
+        System.out.println(updatedLoan.installments());
+
+        assert updatedLoan.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
+        assert updatedLoan.installments().stream().filter(
+                i -> i.status().equals(LATE)).count() == 2;
     }
 }

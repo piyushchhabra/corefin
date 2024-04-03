@@ -5,12 +5,9 @@ import com.corefin.server.v1.model.LoanInstallmentInfo;
 import com.corefin.server.v1.request.CreateLoanRequest;
 import com.corefin.server.v1.request.MakePaymentRequest;
 import com.corefin.server.v1.response.GetLoanResponse;
-import org.corefin.calculator.Actuarial365Calculator;
-import org.corefin.calculator.model.PaymentStatus;
 import org.corefin.dao.LoanDao;
 import org.corefin.dao.LoanInstallmentDao;
 import org.corefin.dao.PaymentDao;
-import org.corefin.dto.LoanDto;
 import org.corefin.model.common.InstallmentStatus;
 import org.corefin.model.common.PaymentType;
 import org.corefin.utils.JdbiHelper;
@@ -33,6 +30,10 @@ public class PaymentResourceManagerTest {
     private PaymentResourceManager paymentResourceManager;
     private ZoneId zoneId = ZoneId.of("America/Los_Angeles");
 
+    /**
+     * Sets up the test fixture.
+     * (Called before every test case method.)
+     */
     @BeforeEach
     public void init() {
         Jdbi jdbi = JdbiHelper.jdbi();

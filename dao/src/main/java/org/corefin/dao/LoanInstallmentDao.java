@@ -51,7 +51,7 @@ public class LoanInstallmentDao implements BaseDao<LoanInstallmentDto> {
                 .bind("due_date", dto.dueDate())
                 .bind("status", dto.status().toString())
                 .bind("start_date", dto.startDate())
-                .bind("end_date", dto.dueDate())
+                .bind("end_date", dto.endDate())
                 .execute();
     }
 

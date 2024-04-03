@@ -161,5 +161,4 @@ public class PaymentResourceManager {
             throw new CorefinException("Invalid loan id", e);
         }
     }
-
 }
