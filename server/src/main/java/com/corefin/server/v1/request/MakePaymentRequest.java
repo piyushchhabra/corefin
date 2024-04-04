@@ -11,10 +11,12 @@ import java.time.ZonedDateTime;
 
 public record MakePaymentRequest(
         @Valid
-       BigDecimal amount,
+        String loanId,
         @Valid
-       String paymentType,
+        BigDecimal amount,
         @Valid
-       ZonedDateTime paymentDateTime
+        String paymentType,
+        @Valid
+        ZonedDateTime paymentDateTime
 ) {
 }

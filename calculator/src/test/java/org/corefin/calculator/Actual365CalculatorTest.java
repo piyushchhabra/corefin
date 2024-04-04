@@ -536,8 +536,7 @@ public class Actual365CalculatorTest {
 
         Loan updatedLoan = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate());
 
-//        assert updatedLoan.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
-        assertThat(updatedLoan.installments().stream().filter(
-                i -> i.status().equals(LATE)).count()).isEqualTo(1);
+        assert updatedLoan.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
+      
     }
 }

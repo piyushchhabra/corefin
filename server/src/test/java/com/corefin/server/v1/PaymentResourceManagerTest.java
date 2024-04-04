@@ -28,7 +28,7 @@ public class PaymentResourceManagerTest {
     private PaymentDao paymentDao;
     private LoanResourceManager loanResourceManager;
     private PaymentResourceManager paymentResourceManager;
-    private ZoneId zoneId = ZoneId.of("America/Los_Angeles");
+    private final ZoneId zoneId = ZoneId.of("America/Los_Angeles");
 
     /**
      * Sets up the test fixture.
@@ -83,12 +83,13 @@ public class PaymentResourceManagerTest {
                 ZonedDateTime.of(loanInfo.startDate().plusMonths(1), LocalTime.MIDNIGHT, zoneId);
 
         MakePaymentRequest makePaymentRequest = new MakePaymentRequest(
+                loanInfo.loanId(),
                 principalAmount.add(interestAmount),
                 PaymentType.PAYMENT.toString(),
                 paymentDate
         );
 
-        GetLoanResponse loanResponse = paymentResourceManager.doMakePayment(loanInfo.loanId(), makePaymentRequest);
+        GetLoanResponse loanResponse = paymentResourceManager.doMakePayment(makePaymentRequest);
         List<LoanInstallmentInfo> loanInstallmentInfoList =
                 loanResponse.loanInfo().loanInstallments();
 

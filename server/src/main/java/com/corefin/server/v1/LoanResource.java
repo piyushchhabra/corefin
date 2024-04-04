@@ -24,8 +24,8 @@ public class LoanResource {
 
     private static final Logger LOGGER = Logger.getLogger(LoanResource.class.getName());
 
-    private LoanResourceManager loanResourceManager;
-    private PaymentResourceManager paymentResourceManager;
+    private final LoanResourceManager loanResourceManager;
+    private final PaymentResourceManager paymentResourceManager;
     @Inject
     public LoanResource(LoanResourceManager loanResourceManager,
                         PaymentResourceManager paymentResourceManager) {

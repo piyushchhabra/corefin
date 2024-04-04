@@ -1,5 +1,7 @@
 package org.corefin.dto;
 
+import org.corefin.model.common.LoanStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -14,7 +16,7 @@ public record LoanDto(String loanId,
                       String externalReference,
                       LocalDate startDate,
                       LocalDate endDate,
-                      String status,
+                      LoanStatus status,
                       String timezone,
                       String region,
                       String state

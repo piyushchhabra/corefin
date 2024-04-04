@@ -1,15 +1,14 @@
 package com.corefin.server.v1;
 
 import com.corefin.server.exception.CorefinException;
-import com.corefin.server.transform.LoanInstallmentTransformer;
 import com.corefin.server.transform.LoanTransformer;
 import com.corefin.server.v1.request.MakePaymentRequest;
 import com.corefin.server.v1.response.GetLoanResponse;
-import org.corefin.calculator.Actual365CalculatorImpl;
+import com.corefin.server.v1.response.GetPaymentResponse;
+import com.corefin.server.v1.response.GetPaymentsResponse;
 import org.corefin.calculator.Actuarial365Calculator;
 import org.corefin.calculator.model.Installment;
 import org.corefin.calculator.model.Loan;
-import org.corefin.calculator.model.Payment;
 import org.corefin.dao.LoanDao;
 import org.corefin.dao.LoanInstallmentDao;
 import org.corefin.dao.PaymentDao;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,11 +32,11 @@ import java.util.logging.Logger;
 @Service
 public class PaymentResourceManager {
     private static final Logger LOGGER = Logger.getLogger(PaymentResourceManager.class.getName());
-    private Actuarial365Calculator calculator;
-    private LoanDao loanDao;
-    private LoanInstallmentDao loanInstallmentDao;
-    private PaymentDao paymentDao;
-    private LoanResourceManager loanResourceManager;
+    private final Actuarial365Calculator calculator;
+    private final LoanDao loanDao;
+    private final LoanInstallmentDao loanInstallmentDao;
+    private final PaymentDao paymentDao;
+    private final LoanResourceManager loanResourceManager;
 
     @Inject
     public PaymentResourceManager(LoanDao loanDao,
@@ -61,12 +59,9 @@ public class PaymentResourceManager {
     /**
      * Applies the payment and updates the state of the installments for the
      * associated Loan.
-     *
-     * @param loanId
-     * @param makePaymentRequest
-     * @return
      */
-    public GetLoanResponse doMakePayment(String loanId, MakePaymentRequest makePaymentRequest) {
+    public GetLoanResponse doMakePayment(MakePaymentRequest makePaymentRequest) {
+        String loanId = makePaymentRequest.loanId();
         LOGGER.info("Making payment to loanId %s with %s".formatted(loanId, makePaymentRequest));
         validateMakePaymentRequest(loanId);
         List<LoanInstallmentDto> loanInstallmentDtoList = loanInstallmentDao.findByLoanId(loanId);
@@ -74,7 +69,7 @@ public class PaymentResourceManager {
                 loanInstallmentDtoList.stream()
                         .filter(c -> c.status() == InstallmentStatus.OWED)
                         .findFirst();
-        if (!firstUnpaidInstallmentOptional.isPresent()) {
+        if (firstUnpaidInstallmentOptional.isEmpty()) {
             throw new CorefinException("No unpaid installments");
         }
         LoanInstallmentDto firstUnpaidInstallment = firstUnpaidInstallmentOptional.get();
@@ -95,8 +90,8 @@ public class PaymentResourceManager {
 
         // Convert LoanDao to Loan
         LoanDto loanDto = loanDao.findById(loanId);
-        List<PaymentDto> paymentDtos = paymentDao.findByLoanId(loanId);
-        Loan loan = LoanTransformer.transform(loanDto, paymentDtos);
+        List<PaymentDto> paymentDtoList = paymentDao.findByLoanId(loanId);
+        Loan loan = LoanTransformer.transform(loanDto, paymentDtoList);
 
         // Call the calculator's updateInstallments with Loan, calculation date = now()
         Loan updatedLoan = calculator.updateInstallments(loan, LocalDate.now());
@@ -125,11 +120,30 @@ public class PaymentResourceManager {
             );
         }
 
-        updatedLoanInstallmentDtos.forEach(loanInstallmentDto -> {
-            loanInstallmentDao.updateInstallmentForPayment(loanInstallmentDto);
-        });
-
+        updatedLoanInstallmentDtos.forEach(loanInstallmentDao::updateInstallmentForPayment);
         return loanResourceManager.doGetLoan(loanId);
+    }
+
+    /**
+     * Gets payment by ID
+     *
+     * @param paymentId
+     * @return
+     */
+    public GetPaymentResponse doGetPayment(String paymentId) {
+        PaymentDto paymentDto = paymentDao.findById(paymentId);
+        return new GetPaymentResponse(paymentDto);
+    }
+
+    /**
+     * Gets all payments that have been applied to a Loan.
+     *
+     * @param loanId
+     * @return
+     */
+    public GetPaymentsResponse doGetPaymentsForLoan(String loanId) {
+        List<PaymentDto> paymentDtoList = paymentDao.findByLoanId(loanId);
+        return new GetPaymentsResponse(paymentDtoList);
     }
 
     private void validateMakePaymentRequestDate(MakePaymentRequest makePaymentRequest,

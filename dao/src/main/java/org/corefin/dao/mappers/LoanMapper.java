@@ -2,6 +2,7 @@ package org.corefin.dao.mappers;
 
 
 import org.corefin.dto.LoanDto;
+import org.corefin.model.common.LoanStatus;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -23,7 +24,7 @@ public class LoanMapper implements RowMapper<LoanDto> {
                 rs.getString("external_reference"),
                 rs.getDate("start_date").toLocalDate(),
                 rs.getDate("end_date").toLocalDate(),
-                rs.getString("status"), // CREATED, IN_PROGRESS, CLOSED
+                LoanStatus.valueOf(rs.getString("status")),
                 rs.getString("timezone"),
                 rs.getString("region"),
                 rs.getString("state")

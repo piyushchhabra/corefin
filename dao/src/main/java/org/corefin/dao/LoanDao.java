@@ -66,7 +66,7 @@ public class LoanDao implements BaseDao<LoanDto> {
                 .bind("external_reference", dto.externalReference())
                 .bind("start_date", dto.startDate())
                 .bind("end_date", dto.endDate())
-                .bind("status", dto.status())
+                .bind("status", dto.status().toString())
                 .bind("timezone", dto.timezone())
                 .bind("region", dto.region())
                 .bind("state", dto.state())
