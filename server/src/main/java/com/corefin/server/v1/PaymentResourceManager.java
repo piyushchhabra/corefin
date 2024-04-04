@@ -9,6 +9,7 @@ import com.corefin.server.v1.response.GetPaymentsResponse;
 import org.corefin.calculator.Actuarial365Calculator;
 import org.corefin.calculator.model.Installment;
 import org.corefin.calculator.model.Loan;
+import org.corefin.calculator.model.Payment;
 import org.corefin.dao.LoanDao;
 import org.corefin.dao.LoanInstallmentDao;
 import org.corefin.dao.PaymentDao;
@@ -63,7 +64,7 @@ public class PaymentResourceManager {
     public GetLoanResponse doMakePayment(MakePaymentRequest makePaymentRequest) {
         String loanId = makePaymentRequest.loanId();
         LOGGER.info("Making payment to loanId %s with %s".formatted(loanId, makePaymentRequest));
-        validateMakePaymentRequest(loanId);
+        validateMakePaymentRequest(makePaymentRequest);
         List<LoanInstallmentDto> loanInstallmentDtoList = loanInstallmentDao.findByLoanId(loanId);
         Optional<LoanInstallmentDto> firstUnpaidInstallmentOptional =
                 loanInstallmentDtoList.stream()
@@ -166,13 +167,21 @@ public class PaymentResourceManager {
         }
     }
 
-    private void validateMakePaymentRequest(String loanId) {
-        // Validate loanId exists
+    private void validateMakePaymentRequest(MakePaymentRequest makePaymentRequest) {
+        // Validate payment type
         try {
-            loanDao.findById(loanId);
+            PaymentType.valueOf(makePaymentRequest.paymentType());
+        } catch (IllegalArgumentException e) {
+            LOGGER.severe("Invalid payment type " + makePaymentRequest.paymentType());
+            throw new CorefinException("Invalid payment type %s".formatted(makePaymentRequest.paymentType()), e);
+        }
+
+        // Validate loan exists
+        try {
+            loanDao.findById(makePaymentRequest.loanId());
         } catch (Exception e) {
-            LOGGER.severe("Could not find loan with id " + loanId);
-            throw new CorefinException("Invalid loan id", e);
+            LOGGER.severe("Could not find loan with id " + makePaymentRequest.loanId());
+            throw new CorefinException("Invalid loan id %s".formatted(makePaymentRequest.loanId()), e);
         }
     }
 }

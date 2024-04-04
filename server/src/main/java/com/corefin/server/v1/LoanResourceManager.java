@@ -2,8 +2,10 @@ package com.corefin.server.v1;
 
 import com.corefin.server.transform.LoanInstallmentTransformer;
 import com.corefin.server.transform.LoanTransformer;
+import com.corefin.server.v1.model.LoanInfo;
 import com.corefin.server.v1.request.CreateLoanRequest;
 import com.corefin.server.v1.response.GetLoanResponse;
+import com.corefin.server.v1.response.GetLoansResponse;
 import org.corefin.calculator.Actuarial365Calculator;
 import org.corefin.calculator.model.Installment;
 import org.corefin.dao.LoanDao;
@@ -17,6 +19,8 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class LoanResourceManager {
@@ -44,6 +48,22 @@ public class LoanResourceManager {
                 ));
     }
 
+    public GetLoansResponse doGetLoans() {
+        List<LoanDto> loanDtoList = loanDao.findAll();
+        List<LoanInfo> loanInfolist = loanDtoList.stream().map(loanDto -> {
+            String loanId = loanDto.loanId();
+            List<LoanInstallmentDto> loanInstallmentDtoList = loanInstallmentDao.findByLoanId(loanId);
+            return LoanTransformer.transformToLoanInfo(
+                    loanDto,
+                    loanInstallmentDtoList
+            );
+        }).collect(Collectors.toList());
+
+        return new GetLoansResponse(
+                loanInfolist
+        );
+    }
+
     public GetLoanResponse createLoan(CreateLoanRequest createLoanRequest) {
         String loanId = UUID.randomUUID().toString();
         LoanDto loanDto = new LoanDto(
@@ -63,7 +83,7 @@ public class LoanResourceManager {
         );
         List<Installment> newInstallments = calculator.newInstallments(LoanTransformer.transformForNewInstallments(createLoanRequest));
         List<LoanInstallmentDto> loanInstallmentDtos = LoanInstallmentTransformer.transform(newInstallments, loanId);
-        // TODO(hubert): Add transactionals
+        // TODO(hubert): Add transactions
         loanInstallmentDtos.forEach(loanInstallmentDao::insert);
         loanDao.insert(loanDto);
         loanInstallmentDtos = loanInstallmentDao.findByLoanId(loanId);

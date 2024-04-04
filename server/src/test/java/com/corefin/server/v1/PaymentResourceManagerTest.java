@@ -1,5 +1,6 @@
 package com.corefin.server.v1;
 
+import com.corefin.server.exception.CorefinException;
 import com.corefin.server.v1.model.LoanInfo;
 import com.corefin.server.v1.model.LoanInstallmentInfo;
 import com.corefin.server.v1.request.CreateLoanRequest;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PaymentResourceManagerTest {
     private LoanDao loanDao;
@@ -73,6 +75,9 @@ public class PaymentResourceManagerTest {
         return loanResourceManager.createLoan(createLoanRequest).loanInfo();
     }
 
+    /**
+     * Tests the basic functionality of applying a single on-time payment.
+     */
     @Test
     public void testDoMakePayment() {
         LoanInfo loanInfo = initLoan();
@@ -95,5 +100,43 @@ public class PaymentResourceManagerTest {
 
         LoanInstallmentInfo firstInstallment = loanInstallmentInfoList.get(0);
         assertEquals(firstInstallment.status(), InstallmentStatus.PAID);
+    }
+
+    /**
+     * Tests the PaymentResourceManager's behavior when a payment is applied with an invalid
+     * payment type.
+     */
+    @Test
+    public void testDoMakePayment_InvalidPaymentType() {
+        LoanInfo loanInfo = initLoan();
+        MakePaymentRequest invalidMakePaymentRequest = new MakePaymentRequest(
+                loanInfo.loanId(),
+                BigDecimal.valueOf(0),
+                "INVALID_PAYMENT_TYPE",
+                ZonedDateTime.of(loanInfo.startDate().plusMonths(1), LocalTime.MIDNIGHT, zoneId)
+        );
+        CorefinException exception = assertThrows(CorefinException.class, () -> {
+            paymentResourceManager.doMakePayment(invalidMakePaymentRequest);
+        });
+        assertEquals(exception.getMessage(), "Invalid payment type INVALID_PAYMENT_TYPE");
+    }
+
+    /**
+     * Tests the PaymentResourceManager's behavior when a payment is applied with an invalid
+     * loan id.
+     */
+    @Test
+    public void testDoMakePayment_LoanDoesNotExist() {
+        LoanInfo loanInfo = initLoan();
+        MakePaymentRequest invalidMakePaymentRequest = new MakePaymentRequest(
+                "INVALID_LOAN_ID",
+                BigDecimal.valueOf(0),
+                PaymentType.PAYMENT.toString(),
+                ZonedDateTime.of(loanInfo.startDate().plusMonths(1), LocalTime.MIDNIGHT, zoneId)
+        );
+        CorefinException exception = assertThrows(CorefinException.class, () -> {
+            paymentResourceManager.doMakePayment(invalidMakePaymentRequest);
+        });
+        assertEquals(exception.getMessage(), "Invalid loan id INVALID_LOAN_ID");
     }
 }

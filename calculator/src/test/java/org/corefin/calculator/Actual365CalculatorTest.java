@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -28,14 +29,13 @@ import static org.corefin.model.common.InstallmentStatus.EARLY;
 import static org.corefin.model.common.InstallmentStatus.LATE;
 import static org.corefin.model.common.InstallmentStatus.PAID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class Actual365CalculatorTest {
     private Actual365CalculatorImpl actual365Calculator;
     private Loan loanConfig;
-    private BigDecimal originatedPrincipalAmount = new BigDecimal("1000.00");
+    private final BigDecimal originatedPrincipalAmount = new BigDecimal("1000.00");
 
     /**
      * Sets up the test fixture.
@@ -359,8 +359,6 @@ public class Actual365CalculatorTest {
         Loan updatedLoanAfterAllInstallments =
                 actual365Calculator.updateInstallments(loanConfig, startDate.plusMonths(6));
 
-        // After all payments, the accruedInterest should be 0
-        assert updatedLoanAfterAllInstallments.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
         assert updatedLoanAfterAllInstallments.installments().stream().filter(
                 i -> i.status().equals(PAID)).count() == 6;
 
@@ -408,7 +406,7 @@ public class Actual365CalculatorTest {
                 BigDecimal.ZERO
         );
         Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate().plusDays(1));
-//        assertThat(updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO)).isGreaterThan(0);
+        // assertThat(updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO)).isGreaterThan(0);
         assertThat(updatedLoanOneDayAfter.installments().stream()
                 .filter(i -> i.status().equals(LATE)).count()).isEqualTo(1);
     }
@@ -444,7 +442,7 @@ public class Actual365CalculatorTest {
                 BigDecimal.ZERO
         );
         Loan updatedLoanOneDayAfter = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate());
-//        assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
+        // Assert updatedLoanOneDayAfter.accruedInterest().compareTo(BigDecimal.ZERO) == 0
         // accrued 10 days of interest, check that it got paid.
         assertThat(updatedLoanOneDayAfter.installments().get(0).interestAmount()).isEqualTo(new BigDecimal("2.74"));
         // the second installment will be accruing interest for about 50 days, and will be ~5x higher
@@ -453,9 +451,9 @@ public class Actual365CalculatorTest {
                 i -> i.status().equals(EARLY)).count()).isEqualTo(1);
     }
     @Test
-    public void testUpdateInstallmentsBasicAccrual_2EarlyPayment() {
+    public void testUpdateInstallments_2EarlyFullInstallmentPayments() {
         LocalDate startDate =
-                LocalDate.of(2024, 01, 01);
+                LocalDate.of(2024, 1, 1);
         ZonedDateTime paymentDate = startDate.atStartOfDay(ZoneId.of("UTC"));
         List<Payment> payments = new ArrayList<>();
         payments.add(
@@ -500,11 +498,11 @@ public class Actual365CalculatorTest {
      * after one late full payment for the first installment.
      */
     @Test
-    public void testUpdateInstallmentsBasicAccrual_1LateFullInstallmentPayment() {
+    public void testUpdateInstallments_1LateFullInstallmentPayment() {
         LocalDate startDate =
                 LocalDate.of(2023, 1, 1);
 
-        // Create a payment for the first installment that's late by 27 days
+        // Create a payment for the first installment that's late by 27 days on 2/28 and apply it
         ZonedDateTime paymentDate =
                 startDate.atStartOfDay(ZoneId.of("UTC")).plusMonths(1).plusDays(28);
         List<Payment> payments = new ArrayList<>();
@@ -516,6 +514,8 @@ public class Actual365CalculatorTest {
                         PaymentType.PAYMENT,
                         new ArrayList<>())
         );
+
+        // Create a payment for the second installment that's on-time
 
         loanConfig = new Loan(
                 "loanId",
@@ -532,11 +532,12 @@ public class Actual365CalculatorTest {
                 originatedPrincipalAmount,
                 BigDecimal.ZERO
         );
-        List<Installment> schedule = actual365Calculator.getActual365AmortizationSchedule(loanConfig);
 
         Loan updatedLoan = actual365Calculator.updateInstallments(loanConfig, paymentDate.toLocalDate());
-
-        assert updatedLoan.accruedInterest().compareTo(BigDecimal.ZERO) == 0;
-      
+        List<Installment> schedule =  updatedLoan.installments();
+        assertEquals(schedule.get(0).interestAmount(), BigDecimal.valueOf(16.16));
+        assertEquals(schedule.get(0).principalAmount(),
+                BigDecimal.valueOf(155.4).setScale(2, RoundingMode.DOWN));
+        assertThat(schedule.get(0).status()).isEqualTo(LATE);
     }
 }

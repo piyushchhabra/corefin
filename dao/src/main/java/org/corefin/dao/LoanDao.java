@@ -5,6 +5,8 @@ import org.corefin.dto.LoanDto;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
+import java.util.List;
+
 // TODO: implement me
 public class LoanDao implements BaseDao<LoanDto> {
     private Jdbi jdbi;
@@ -84,6 +86,15 @@ public class LoanDao implements BaseDao<LoanDto> {
                         .orElseThrow()
         );
     }
+
+    public List<LoanDto>findAll() {
+        return jdbi.withHandle(
+            handle -> handle.createQuery("SELECT * FROM loan")
+                    .mapTo(LoanDto.class)
+                    .list()
+        );
+    }
+
     @Override
     public void registerRowMapper() {
         jdbi.registerRowMapper(new LoanMapper());

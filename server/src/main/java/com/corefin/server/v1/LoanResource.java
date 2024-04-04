@@ -3,6 +3,7 @@ package com.corefin.server.v1;
 import com.corefin.server.v1.request.CreateLoanRequest;
 import com.corefin.server.v1.request.MakePaymentRequest;
 import com.corefin.server.v1.response.GetLoanResponse;
+import com.corefin.server.v1.response.GetLoansResponse;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -37,6 +38,13 @@ public class LoanResource {
     public GetLoanResponse createLoan(@Valid CreateLoanRequest createLoanRequest) {
         return loanResourceManager.createLoan(createLoanRequest);
     }
+
+    @GET
+    public GetLoansResponse getLoans() {
+        LOGGER.info("getLoans called");
+        return loanResourceManager.doGetLoans();
+    }
+
     @GET
     @Path("/{loanId}")
     public GetLoanResponse getLoan(@PathParam("loanId") String loanId) {
