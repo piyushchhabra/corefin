@@ -42,6 +42,12 @@ public class PaymentResource {
     }
 
     @GET
+    public GetPaymentsResponse getPayments() {
+        LOGGER.info("getPayments called");
+        return paymentResourceManager.doGetPayments();
+    }
+
+    @GET
     @Path("/{paymentId}")
     public GetPaymentResponse getPayment(@PathParam("paymentId") String paymentId) {
         LOGGER.info("getPayment called for payment with id %s".formatted(paymentId));

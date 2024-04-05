@@ -137,6 +137,16 @@ public class PaymentResourceManager {
     }
 
     /**
+     * Gets all payments for all Loans.
+     *
+     * @return
+     */
+    public GetPaymentsResponse doGetPayments() {
+       List<PaymentDto> paymentDtoList = paymentDao.findAll();
+       return new GetPaymentsResponse(paymentDtoList);
+    }
+
+    /**
      * Gets all payments that have been applied to a Loan.
      *
      * @param loanId

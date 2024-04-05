@@ -68,4 +68,13 @@ public class PaymentDao implements BaseDao<PaymentDto> {
                             .list()
         );
     }
+
+    public List<PaymentDto> findAll() {
+        return jdbi.withHandle(
+                handle ->
+                        handle.createQuery("SELECT * FROM payment")
+                                .mapTo(PaymentDto.class)
+                                .list()
+        );
+    }
 }
