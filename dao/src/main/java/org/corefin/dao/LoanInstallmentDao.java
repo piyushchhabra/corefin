@@ -2,11 +2,10 @@ package org.corefin.dao;
 
 import org.corefin.dao.mappers.LoanInstallmentMapper;
 import org.corefin.dto.LoanInstallmentDto;
+import org.corefin.model.common.InstallmentStatus;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class LoanInstallmentDao implements BaseDao<LoanInstallmentDto> {
@@ -70,6 +69,16 @@ public class LoanInstallmentDao implements BaseDao<LoanInstallmentDto> {
         return jdbi.withHandle(
                 handle -> handle.createQuery("SELECT * FROM loan_installment WHERE loan_id= :loan_id")
                         .bind("loan_id", loanId)
+                        .mapTo(LoanInstallmentDto.class)
+                        .list()
+        );
+    }
+
+    public List<LoanInstallmentDto> findPastDueByLoanIdAndStatus(String loanId, InstallmentStatus status) {
+        return jdbi.withHandle(
+                handle -> handle.createQuery("SELECT * FROM loan_installment WHERE loan_id= :loan_id AND status = :status AND due_date < CURDATE()")
+                        .bind("loan_id", loanId)
+                        .bind("status", status.toString())
                         .mapTo(LoanInstallmentDto.class)
                         .list()
         );

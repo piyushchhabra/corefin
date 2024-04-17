@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 public record PaymentDto(
         String paymentId,
-        String loandId,
+        String loanId,
         BigDecimal amount,
         PaymentType paymentType,
         ZonedDateTime paymentDateTime

@@ -1,8 +1,6 @@
 package org.corefin.dao;
 
-import org.corefin.calculator.model.Payment;
 import org.corefin.dao.mappers.PaymentMapper;
-import org.corefin.dto.LoanInstallmentDto;
 import org.corefin.dto.PaymentDto;
 import org.jdbi.v3.core.Jdbi;
 
@@ -33,7 +31,7 @@ public class PaymentDao implements BaseDao<PaymentDto> {
         jdbi.useHandle(
                 handle -> {
                     handle.createUpdate(insertQuery)
-                            .bind("loan_id", dto.loandId())
+                            .bind("loan_id", dto.loanId())
                             .bind("amount", dto.amount())
                             .bind("payment_type", dto.paymentType().toString())
                             .bind("payment_datetime", dto.paymentDateTime())

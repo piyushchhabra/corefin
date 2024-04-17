@@ -4,6 +4,7 @@ import com.corefin.server.transform.LoanInstallmentTransformer;
 import com.corefin.server.transform.LoanTransformer;
 import com.corefin.server.v1.model.LoanInfo;
 import com.corefin.server.v1.request.CreateLoanRequest;
+import com.corefin.server.v1.response.GetInstallmentsResponse;
 import com.corefin.server.v1.response.GetLoanResponse;
 import com.corefin.server.v1.response.GetLoansResponse;
 import org.corefin.calculator.Actuarial365Calculator;
@@ -12,6 +13,7 @@ import org.corefin.dao.LoanDao;
 import org.corefin.dao.LoanInstallmentDao;
 import org.corefin.dto.LoanDto;
 import org.corefin.dto.LoanInstallmentDto;
+import org.corefin.model.common.InstallmentStatus;
 import org.corefin.model.common.LoanStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class LoanResourceManager {
@@ -62,6 +63,11 @@ public class LoanResourceManager {
         return new GetLoansResponse(
                 loanInfolist
         );
+    }
+
+    public GetInstallmentsResponse doGetPastDueInstallments(String loanId) {
+        List<LoanInstallmentDto> dueInstallments = loanInstallmentDao.findPastDueByLoanIdAndStatus(loanId, InstallmentStatus.OWED);
+        return new GetInstallmentsResponse(dueInstallments);
     }
 
     public GetLoanResponse createLoan(CreateLoanRequest createLoanRequest) {

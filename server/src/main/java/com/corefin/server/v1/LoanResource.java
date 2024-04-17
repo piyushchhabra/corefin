@@ -1,7 +1,7 @@
 package com.corefin.server.v1;
 
 import com.corefin.server.v1.request.CreateLoanRequest;
-import com.corefin.server.v1.request.MakePaymentRequest;
+import com.corefin.server.v1.response.GetInstallmentsResponse;
 import com.corefin.server.v1.response.GetLoanResponse;
 import com.corefin.server.v1.response.GetLoansResponse;
 import org.springframework.stereotype.Component;
@@ -50,5 +50,12 @@ public class LoanResource {
     public GetLoanResponse getLoan(@PathParam("loanId") String loanId) {
         LOGGER.info("getLoan called for loan with id %s".formatted(loanId));
         return loanResourceManager.doGetLoan(loanId);
+    }
+
+    @GET
+    @Path("/{loanId}/installments/pastDue")
+    public GetInstallmentsResponse getPastDueInstallments(@PathParam("loanId") String loanId) {
+        LOGGER.info("getPastDueInstallments called for loan with id %s".formatted(loanId));
+        return loanResourceManager.doGetPastDueInstallments(loanId);
     }
 }
